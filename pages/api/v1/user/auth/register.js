@@ -3,7 +3,7 @@ import { Prisma } from '@prisma/client';
 import bcrypt from 'bcrypt';
 
 export default async function handler(req, res) {
-  if (req.method !== 'POST') res.status(405).json({ status: false, message: 'Method Tidak Valid' });
+  if (req.method !== 'POST') return res.status(405).json({ status: false, message: 'Method Tidak Valid' });
 
   const { username, email, password, full_name } = req.body;
 
@@ -43,6 +43,6 @@ export default async function handler(req, res) {
         });
       }
     }
-    res.status(500).json({ status: false, message: 'Error Bang' });
+    return res.status(500).json({ status: false, message: 'Error Bang' });
   }
 }

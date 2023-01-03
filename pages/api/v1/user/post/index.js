@@ -4,10 +4,10 @@ import { decodeJwt } from '../../../../../lib/decodeJwt';
 
 const prisma = new PrismaClient();
 export default async function handler(req, res) {
-  if (req.method !== 'GET') res.status(405).json({ status: false, message: 'request tidak valid' });
+  if (req.method !== 'GET') return res.status(405).json({ status: false, message: 'request tidak valid' });
 
   const auth = await authentication(req, res);
-  if (!auth) res.status(401).json({ status: false, message: 'unauthorized' });
+  if (!auth) return res.status(401).json({ status: false, message: 'unauthorized' });
 
   const { username } = decodeJwt(req);
 
