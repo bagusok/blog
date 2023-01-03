@@ -15,7 +15,7 @@ export default function BlogSidebar() {
   const [menuItem, setMenuItem] = useState([]);
 
   const getMenu = async () => {
-    const data = await fetch('http://localhost:3000/api/v1/list-menu');
+    const data = await fetch('/api/v1/list-menu');
 
     return await data.json();
   };
