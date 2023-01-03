@@ -1,0 +1,82 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        Int      @id @default(autoincrement())
+  username  String   @unique
+  email     String   @unique
+  password  String
+  fullName  String
+  bio       String?
+  role      Role     @default(AUTHOR)
+  isBanned  Boolean  @default(false)
+  createdAt DateTime @default(now())
+  post      Post[]
+}
+
+model Post {
+  id              Int         @id @default(autoincrement())
+  title           String?
+  slug            String      @unique
+  metaTitle       String?
+  metaDescription String?
+  body            String?
+  thumbnail       String?
+  author          User?       @relation(fields: [authorUserName], references: [username], onDelete: Cascade, onUpdate: Cascade)
+  authorUserName  String
+  categories      Categories  @relation(fields: [categoriesName], references: [name], onDelete: Cascade, onUpdate: Cascade)
+  categoriesName  String
+  tag             TagOnPost[]
+  isPublished     Boolean     @default(false)
+  publishedAt     DateTime?
+  createdAt       DateTime    @default(now())
+}
+
+model Categories {
+  id    Int    @id @default(autoincrement())
+  name  String @unique
+  posts Post[]
+}
+
+model Tag {
+  id   Int         @id @default(autoincrement())
+  name String      @unique
+  post TagOnPost[]
+}
+
+model TagOnPost {
+  id      Int    @id @default(autoincrement())
+  post    Post?  @relation(fields: [postID], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  postID  Int
+  tag     Tag?   @relation(fields: [tagName], references: [name], onDelete: Cascade, onUpdate: Cascade)
+  tagName String
+}
+
+enum Role {
+  ADMIN
+  AUTHOR
+}
+
+// Site Config
+
+model Navbar {
+  id    Int           @id @default(autoincrement())
+  name  String        @unique
+  url   String?
+  icon  String?
+  child NavbarChild[]
+}
+
+model NavbarChild {
+  id       Int     @id @default(autoincrement())
+  name     String
+  url      String?
+  parent   Navbar? @relation(fields: [parentID], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  parentID Int
+}
