@@ -9,20 +9,20 @@ import * as HeroIcon from '@heroicons/react/24/outline';
 
 export const isOpenSidebar = atom(false);
 
-export default function BlogSidebar() {
+export default function BlogSidebar({ menuItem }) {
   const isOpen = useAtomValue(isOpenSidebar);
 
-  const [menuItem, setMenuItem] = useState([]);
+  // const [menuItem, setMenuItem] = useState([]);
 
-  const getMenu = async () => {
-    const data = await fetch('/api/v1/list-menu');
+  // const getMenu = async () => {
+  //   const data = await fetch('/api/v1/list-menu');
 
-    return await data.json();
-  };
+  //   return await data.json();
+  // };
 
-  useEffect(() => {
-    const getMenuData = getMenu().then((res) => setMenuItem(res.data));
-  }, []);
+  // useEffect(() => {
+  //   // getMenu().then((res) => setMenuItem(res.data));
+  // }, []);
 
   const Icon = ({ name, ...rest }) => {
     const IconComponent = HeroIcon[name];

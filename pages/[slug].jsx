@@ -7,6 +7,7 @@ import { CiShare1 } from 'react-icons/ci';
 import BlogFooter from '../components/blog/BlogFooter';
 import { useRouter } from 'next/router';
 import { PrismaClient } from '@prisma/client';
+import Head from 'next/head';
 
 const prisma = new PrismaClient();
 
@@ -20,10 +21,39 @@ export default function PostDetail(props) {
 
   return (
     <>
+      <Head>
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <meta charSet="utf-8" />
+
+        <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+        <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
+        <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
+
+        <title>{post.title}</title>
+        <meta name="robots" content="all" />
+        <meta name="author" content={post.author.fullName} />
+        <meta name="keywords" content={post.tag.map((tag) => tag.tagName).toString()} />
+
+        <meta name="title" content={post.title} />
+        <meta name="description" content={post.metaDescription} />
+
+        <meta property="og:type" content="website" />
+        <meta property="og:url" content={post.url} />
+        <meta property="og:title" content={post.title} />
+        <meta property="og:description" content={post.metaDescription} />
+        <meta property="og:image" content={post.thumbnail} />
+
+        <meta property="twitter:card" content="summary_large_image" />
+        <meta property="twitter:url" content={post.url} />
+        <meta property="twitter:title" content={post.title} />
+        <meta property="twitter:description" content={post.metaDescription} />
+        <meta property="twitter:image" content={post.thumbnail} />
+      </Head>
+
       <div className="flex flex-col relative">
         <BlogNavbar />
         <main className="w-full min-h-screen flex flex-col md:flex-row lg:flex-row lg:justify-between lg:gap-2 relative">
-          <BlogSidebar />
+          <BlogSidebar menuItem={props.menuItem} />
           <article className="lg:w-7/12 md:w-8/12 mt-5 px-4 lg:px-5 relative overflow-hidden">
             <h1 className="text-3xl font-bold">{post?.title}</h1>
             <div className="w-full inline-flex justify-between items-center mt-4">
@@ -178,9 +208,12 @@ export async function getStaticProps({ params }) {
       notFound: true,
     };
 
+  const menuItem = await fetch(`${process.env.BASE_URL}/api/v1/list-menu`).then((res) => res.json());
+
   return {
     props: {
-      post,
+      post: { ...post, url: `${process.env.BASE_URL}/${post.slug}` },
+      menuItem: menuItem.data,
     },
     revalidate: 10,
   };
@@ -192,8 +225,6 @@ export async function getStaticPaths(params) {
       slug: true,
     },
   });
-
-  console.log(post);
 
   const paths = post?.map((post) => {
     return {

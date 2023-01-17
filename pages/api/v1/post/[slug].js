@@ -33,7 +33,7 @@ export default async function handler(req, res) {
 
     if (!post) return res.status(404).json({ status: false, message: 'Post not found' });
 
-    return res.status(200).json({ status: true, data: post });
+    return res.status(200).json({ status: true, data: { ...post, url: `${process.env.BASE_URL}/` } });
   } catch (err) {
     console.log(err.message);
     return res.status(500).json({ status: false, message: 'Something went wrong' });
