@@ -21,6 +21,8 @@ export default function Home({ menuItem, listPost }) {
         <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
         <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
 
+        <link rel="preload" href="/no-image.png" as="image" />
+
         <title>Bagusok Blog</title>
         <meta name="robots" content="all" />
 
@@ -64,6 +66,9 @@ export default function Home({ menuItem, listPost }) {
               <div className="lg:w-1/2 rounded-md overflow-hidden h-full w-auto">
                 <ImageFallback
                   src={listPost[0]?.thumbnail}
+                  loading="lazy"
+                  placeholder="blur"
+                  blurDataURL="LEHC4WWB2yk8pyoJadR*.7kCMdnj"
                   alt="Image"
                   width={500}
                   height={500}
@@ -91,9 +96,12 @@ export default function Home({ menuItem, listPost }) {
                         className="lg:w-1/3 md:w-1/2 flex flex-col justify-between rounded-md overflow-hidden md:p-2 lg:p-2 "
                       >
                         <div>
-                          <div className="image rounded-md overflow-hidden md:h-32 w-auto bg-blue-500 relative">
+                          <div className="image rounded-md overflow-hidden md:h-32 w-auto bg-slate-100/50 relative">
                             <ImageFallback
                               src={a.thumbnail}
+                              loading="lazy"
+                              placeholder="blur"
+                              blurDataURL="LEHC4WWB2yk8pyoJadR*.7kCMdnj"
                               alt="Image"
                               width={500}
                               height={500}

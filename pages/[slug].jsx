@@ -8,6 +8,7 @@ import BlogFooter from '../components/blog/BlogFooter';
 import { useRouter } from 'next/router';
 import { PrismaClient } from '@prisma/client';
 import Head from 'next/head';
+import ImageFallback from '../components/ImageFallback';
 
 const prisma = new PrismaClient();
 
@@ -28,6 +29,7 @@ export default function PostDetail(props) {
         <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
         <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
         <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
+        <link rel="preload" href="/no-image.png" as="image" />
 
         <title>{post.title}</title>
         <meta name="robots" content="all" />
@@ -77,12 +79,15 @@ export default function PostDetail(props) {
               </div>
             </div>
             <div className="w-full h-fit lg:pr-20 mt-4 mb-3">
-              <Image
+              <ImageFallback
                 src={post?.thumbnail}
-                alt="thumbnail"
+                loading="lazy"
+                placeholder="blur"
+                blurDataURL="LEHC4WWB2yk8pyoJadR*.7kCMdnj"
+                alt="Image"
                 width={500}
                 height={500}
-                className="w-full h-full object-cover"
+                className="object-cover w-full"
               />
             </div>
             <div

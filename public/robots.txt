@@ -1,0 +1,2 @@
+User-agent: *
+Sitemap: https://bagusok.com/sitemap.xml
