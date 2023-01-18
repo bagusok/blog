@@ -9,6 +9,8 @@ import { prismaOrm } from '../lib/prisma';
 import ImageFallback from '../components/ImageFallback';
 
 export default function Home({ menuItem, listPost }) {
+  console.log('ini', listPost[0].publishedAt);
+
   return (
     <>
       <Head>
@@ -76,7 +78,7 @@ export default function Home({ menuItem, listPost }) {
                   {listPost[0]?.title}
                 </Link>
                 <p className="hidden md:block font-regular text-sm text-slate-400 mt-2">{listPost[0]?.body}</p>
-                <p className="block lg:hidden font-regular text-sm text-slate-500 mt-2">1 Januari 2023, 16:43</p>
+                <p className="block lg:hidden font-regular text-sm text-slate-500 mt-2">{listPost[0]?.publishedAt}</p>
               </div>
             </section>
             <section id="latest-post-list">
@@ -108,7 +110,7 @@ export default function Home({ menuItem, listPost }) {
                             </Link>
                           </div>
                         </div>
-                        <p className="font-regular text-sm text-slate-500 mt-2">1 Januari 2023, 16:43</p>
+                        <p className="font-regular text-sm text-slate-500 mt-2">{a.publishedAt}</p>
                       </div>
                     );
                 })}
@@ -213,10 +215,70 @@ export async function getServerSideProps() {
 
   if (!getMenu) return { notFound: true };
 
-  const getListPost = await fetch(`${process.env.BASE_URL}/api/v1/post`).then((res) => res.json());
+  // const getListPost = await fetch(`${process.env.BASE_URL}/api/v1/post`).then((res) => res.json());
+
+  const getListPost = await prismaOrm.post.findMany({
+    skip: 0,
+    take: 9,
+    orderBy: {
+      createdAt: 'desc',
+    },
+    select: {
+      title: true,
+      thumbnail: true,
+      slug: true,
+      body: true,
+      author: {
+        select: {
+          fullName: true,
+        },
+      },
+      categories: true,
+      tag: {
+        select: {
+          tag: {
+            select: {
+              name: true,
+            },
+          },
+        },
+      },
+      publishedAt: true,
+    },
+    where: {
+      isPublished: true,
+      author: {
+        isBanned: false,
+      },
+    },
+  });
+
+  if (!getListPost) return { notFound: true };
+
+  const newListPost = getListPost.map((a, i) => {
+    const strippedHtml = a?.body?.replace(/<[^>]+>/g, '').slice(0, 200) + '...';
+
+    return {
+      ...a,
+      publishedAt: new Date(a.publishedAt).toLocaleString('id-ID', {
+        timeZone: 'Asia/Jakarta',
+        month: 'long',
+        day: 'numeric',
+        year: 'numeric',
+        hour: 'numeric',
+        minute: 'numeric',
+      }),
+      body: strippedHtml,
+      categories: a.categories.name,
+      tag: a.tag.map((b, i) => {
+        return b.tag.name;
+      }),
+    };
+  });
+
   return {
     props: {
-      listPost: getListPost.data,
+      listPost: newListPost,
       menuItem: getMenu,
     },
   };
