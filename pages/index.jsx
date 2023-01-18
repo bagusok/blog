@@ -6,7 +6,6 @@ import Link from 'next/link';
 import BlogFooter from '../components/blog/BlogFooter';
 import Head from 'next/head';
 import { prismaOrm } from '../lib/prisma';
-import ImageFallback from '../components/ImageFallback';
 
 export default function Home({ menuItem, listPost }) {
   return (
@@ -197,24 +196,19 @@ export function PostListSkeleton({ count = 1 }) {
 }
 
 export async function getServerSideProps() {
-  // const getItem = await fetch(`${process.env.BASE_URL}/api/v1/list-menu`).then((res) => res.json());
+  const getItem = await fetch(`${process.env.BASE_URL}/api/v1/list-menu`).then((res) => res.json());
 
-  const getItem = await prismaOrm.navbar.findMany({
-    select: {
-      id: true,
-      name: true,
-      icon: true,
-      url: true,
-    },
-    orderBy: {
-      id: 'asc',
-    },
-  });
-
-  console.log(getItem);
-
-  if (!getItem) return { notFound: true };
-
+  // const getItem = await prismaOrm.navbar.findMany({
+  //   select: {
+  //     id: true,
+  //     name: true,
+  //     icon: true,
+  //     url: true,
+  //   },
+  //   orderBy: {
+  //     id: 'asc',
+  //   },
+  // });
   const getListPost = await fetch(`${process.env.BASE_URL}/api/v1/post`).then((res) => res.json());
   return {
     props: {
