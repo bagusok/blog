@@ -2,12 +2,11 @@ import Image from 'next/image';
 import Aside from '../components/blog/Aside';
 import BlogSidebar from '../components/blog/BlogSidebar';
 import BlogNavbar from '../components/blog/BlogNavbar';
-import { fetcher } from '../lib/fetcher';
-import useSWR from 'swr';
 import Link from 'next/link';
 import BlogFooter from '../components/blog/BlogFooter';
 import Head from 'next/head';
 import { prismaOrm } from '../lib/prisma';
+import ImageFallback from '../components/ImageFallback';
 
 export default function Home({ menuItem, listPost }) {
   return (
@@ -61,8 +60,8 @@ export default function Home({ menuItem, listPost }) {
           <article className="lg:w-7/12 md:w-8/12 mt-5 px-4 lg:px-2 relative">
             <section className="featured flex flex-col lg:flex-row gap-4 lg:px-0">
               <div className="lg:w-1/2 rounded-md overflow-hidden h-full w-auto">
-                <Image
-                  src="https://bagusoks.nyc3.digitaloceanspaces.com/blog/BLyk7c-aLxNmOyPctleg_lf24SYLyA.webp"
+                <ImageFallback
+                  src={listPost[0]?.thumbnail}
                   alt="Image"
                   width={500}
                   height={500}
@@ -91,7 +90,7 @@ export default function Home({ menuItem, listPost }) {
                       >
                         <div>
                           <div className="image rounded-md overflow-hidden md:h-32 w-auto bg-blue-500 relative">
-                            <Image
+                            <ImageFallback
                               src={a.thumbnail}
                               alt="Image"
                               width={500}
@@ -198,24 +197,29 @@ export function PostListSkeleton({ count = 1 }) {
 }
 
 export async function getServerSideProps() {
-  const getItem = await fetch(`${process.env.BASE_URL}/api/v1/list-menu`).then((res) => res.json());
+  // const getItem = await fetch(`${process.env.BASE_URL}/api/v1/list-menu`).then((res) => res.json());
 
-  // const getItem = await prismaOrm.navbar.findMany({
-  //   select: {
-  //     id: true,
-  //     name: true,
-  //     icon: true,
-  //     url: true,
-  //   },
-  //   orderBy: {
-  //     id: 'asc',
-  //   },
-  // });
+  const getItem = await prismaOrm.navbar.findMany({
+    select: {
+      id: true,
+      name: true,
+      icon: true,
+      url: true,
+    },
+    orderBy: {
+      id: 'asc',
+    },
+  });
+
+  console.log(getItem);
+
+  if (!getItem) return { notFound: true };
+
   const getListPost = await fetch(`${process.env.BASE_URL}/api/v1/post`).then((res) => res.json());
   return {
     props: {
       listPost: getListPost.data,
-      menuItem: getItem.data,
+      menuItem: getItem,
     },
   };
 }
