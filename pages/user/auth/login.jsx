@@ -16,7 +16,7 @@ export default function Login() {
 
   const setToken = useSetAtom(jwtToken);
   const cookies = parseCookies();
-  if (cookies.token) router.push('/user/post', undefined, { shallow: true });
+  // if (cookies.token) router.push('/user/post', undefined, { shallow: true });
 
   const handleLogin = async (e) => {
     console.log(e);
@@ -38,10 +38,8 @@ export default function Login() {
         });
         setToken(res.token);
         toast.success(res.message);
-        setTimeout(() => {
-          router.push('/user/post', undefined, { shallow: true });
-        }, 500);
-        setIsLoading(false);
+
+        router.reload();
       } else {
         toast.error(res.message);
         setIsLoading(false);
@@ -116,4 +114,20 @@ export default function Login() {
       </div>
     </>
   );
+}
+
+export function getServerSideProps(ctx) {
+  const cookies = parseCookies(ctx);
+  if (cookies.token) {
+    return {
+      redirect: {
+        destination: '/user/post',
+        permanent: false,
+      },
+    };
+  }
+
+  return {
+    props: {},
+  };
 }

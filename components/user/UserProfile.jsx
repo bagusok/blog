@@ -10,10 +10,10 @@ export default function UserProfile() {
       <div className="flex self-center rounded py-2" onClick={() => setIsOpen((prev) => !prev)}>
         <Image
           alt="Profile"
-          src="https://bagusoks.nyc3.digitaloceanspaces.com/blog/kjMEZifk1cccJgd1aBdO3JxxiEvthk.webp"
+          src="/images/avatar.png"
           width={50}
           height={50}
-          className="rounded-md object-cover h-auto w-[50px]"
+          className="rounded-md object-cover h-auto w-[40px]"
         />
 
         {isOpen && (

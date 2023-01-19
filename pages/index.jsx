@@ -7,9 +7,11 @@ import BlogFooter from '../components/blog/BlogFooter';
 import Head from 'next/head';
 import { prismaOrm } from '../lib/prisma';
 import ImageFallback from '../components/ImageFallback';
+import useSwr from 'swr';
+import { fetcher } from '../lib/fetcher';
 
-export default function Home({ menuItem, listPost }) {
-  console.log('ini', listPost[0].publishedAt);
+export default function Home({ menuItem }) {
+  const { data: listPost, error, isLoading } = useSwr('/api/v1/post', fetcher);
 
   return (
     <>
@@ -17,13 +19,13 @@ export default function Home({ menuItem, listPost }) {
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <meta charSet="utf-8" />
 
-        <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
-        <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
-        <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
+        <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png" />
+        <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32.png" />
+        <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16.png" />
 
-        <link rel="preload" href="/no-image.png" as="image" />
+        <link rel="preload" href="/images/no-image.png" as="image" />
 
-        <title>Bagusok Blog</title>
+        <title>Bagusok</title>
         <meta name="robots" content="all" />
 
         <meta name="author" content="Rizqi Bagus Andrean" />
@@ -32,7 +34,7 @@ export default function Home({ menuItem, listPost }) {
           content="Bagus, Bagusok, Rizqi Bagus Andrean, tutorial, bagusok blog, Rizqi Bagus Andrean Blog, Bagus Blog, blog, blog pemrograman, jaringan, linux, mobile legend, free fire, aplikasi"
         />
 
-        <meta name="title" content="Bagusok Blog" />
+        <meta name="title" content="Bagusok" />
         <meta
           name="description"
           content="Blog untuk sharing seputar teknologi yang berkembang di masyarakat bumi, maupun planet lain."
@@ -49,7 +51,7 @@ export default function Home({ menuItem, listPost }) {
 
         <meta property="twitter:card" content="summary_large_image" />
         <meta property="twitter:url" content="https://bagusok.com/" />
-        <meta property="twitter:title" content="Bagusok Blog" />
+        <meta property="twitter:title" content="Bagusok" />
         <meta
           property="twitter:description"
           content="Blog untuk sharing seputar teknologi yang berkembang di masyarakat bumi, maupun planet lain."
@@ -65,7 +67,7 @@ export default function Home({ menuItem, listPost }) {
             <section className="featured flex flex-col lg:flex-row gap-4 lg:px-0">
               <div className="lg:w-1/2 rounded-md overflow-hidden h-full w-auto">
                 <ImageFallback
-                  src={listPost[0]?.thumbnail}
+                  src={listPost?.data[0]?.thumbnail}
                   loading="lazy"
                   placeholder="blur"
                   blurDataURL="LEHC4WWB2yk8pyoJadR*.7kCMdnj"
@@ -77,52 +79,57 @@ export default function Home({ menuItem, listPost }) {
               </div>
               <div className="lg:w-1/2">
                 <Link
-                  href={`/${listPost[0]?.slug}`}
+                  href={`/${listPost?.data[0]?.slug}`}
                   className="font-semibold text-black text-xl lg:text-lg hover:border-b-2 hover:border-slate-500 hover:opacity-70"
                 >
-                  {listPost[0]?.title}
+                  {listPost?.data[0]?.title}
                 </Link>
-                <p className="hidden md:block font-regular text-sm text-slate-400 mt-2">{listPost[0]?.body}</p>
-                <p className="block lg:hidden font-regular text-sm text-slate-500 mt-2">{listPost[0]?.publishedAt}</p>
+                <p className="hidden md:block font-regular text-sm text-slate-400 mt-2">{listPost?.data[0]?.body}</p>
+                <p className="block lg:hidden font-regular text-sm text-slate-500 mt-2">
+                  {listPost?.data[0]?.publishedAt}
+                </p>
               </div>
             </section>
             <section id="latest-post-list">
-              <div className="latest-post flex flex-col md:flex-row flex-wrap lg:flex-row lg:flex-wrap gap-8 md:gap-0 lg:gap-0 mt-8 lg:mt-10">
-                {listPost?.map((a, i) => {
-                  if (i !== 0)
-                    return (
-                      <div
-                        key={i}
-                        className="lg:w-1/3 md:w-1/2 flex flex-col justify-between rounded-md overflow-hidden md:p-2 lg:p-2 "
-                      >
-                        <div>
-                          <div className="image rounded-md overflow-hidden md:h-32 w-auto bg-slate-100/50 relative">
-                            <ImageFallback
-                              src={a.thumbnail}
-                              loading="lazy"
-                              placeholder="blur"
-                              blurDataURL="LEHC4WWB2yk8pyoJadR*.7kCMdnj"
-                              alt="Image"
-                              width={500}
-                              height={500}
-                              className="md:h-full w-full object-cover"
-                            />
+              {isLoading && <PostListSkeleton count={5} />}
+              {!error && !isLoading && (
+                <div className="latest-post flex flex-col md:flex-row flex-wrap lg:flex-row lg:flex-wrap gap-8 md:gap-0 lg:gap-0 mt-8 lg:mt-10">
+                  {listPost.data?.map((a, i) => {
+                    if (i !== 0)
+                      return (
+                        <div
+                          key={i}
+                          className="lg:w-1/3 md:w-1/2 flex flex-col justify-between rounded-md overflow-hidden md:p-2 lg:p-2 "
+                        >
+                          <div>
+                            <div className="image rounded-md overflow-hidden md:h-32 w-auto bg-slate-100/50 relative">
+                              <ImageFallback
+                                src={a.thumbnail}
+                                loading="lazy"
+                                placeholder="blur"
+                                blurDataURL="LEHC4WWB2yk8pyoJadR*.7kCMdnj"
+                                alt="Image"
+                                width={500}
+                                height={500}
+                                className="md:h-full w-full object-cover"
+                              />
+                            </div>
+                            <div className="text-body mt-1">
+                              <p className="font-semibold text-base text-melrose-400">{a.categories}</p>
+                              <Link
+                                href={`/${a.slug}`}
+                                className="font-semibold text-black text-xl lg:text-lg hover:border-b-2 hover:border-slate-500 hover:opacity-70"
+                              >
+                                {a.title}
+                              </Link>
+                            </div>
                           </div>
-                          <div className="text-body mt-1">
-                            <p className="font-semibold text-base text-melrose-400">{a.categories}</p>
-                            <Link
-                              href={`/${a.slug}`}
-                              className="font-semibold text-black text-xl lg:text-lg hover:border-b-2 hover:border-slate-500 hover:opacity-70"
-                            >
-                              {a.title}
-                            </Link>
-                          </div>
+                          <p className="font-regular text-sm text-slate-500 mt-2">{a.publishedAt}</p>
                         </div>
-                        <p className="font-regular text-sm text-slate-500 mt-2">{a.publishedAt}</p>
-                      </div>
-                    );
-                })}
-              </div>
+                      );
+                  })}
+                </div>
+              )}
             </section>
             <div className="flex justify-center mt-16">
               <button
@@ -221,72 +228,12 @@ export async function getServerSideProps() {
     },
   });
 
+  console.log(getMenu);
+
   if (!getMenu) return { notFound: true };
-
-  // const getListPost = await fetch(`${process.env.BASE_URL}/api/v1/post`).then((res) => res.json());
-
-  const getListPost = await prismaOrm.post.findMany({
-    skip: 0,
-    take: 9,
-    orderBy: {
-      createdAt: 'desc',
-    },
-    select: {
-      title: true,
-      thumbnail: true,
-      slug: true,
-      body: true,
-      author: {
-        select: {
-          fullName: true,
-        },
-      },
-      categories: true,
-      tag: {
-        select: {
-          tag: {
-            select: {
-              name: true,
-            },
-          },
-        },
-      },
-      publishedAt: true,
-    },
-    where: {
-      isPublished: true,
-      author: {
-        isBanned: false,
-      },
-    },
-  });
-
-  if (!getListPost) return { notFound: true };
-
-  const newListPost = getListPost.map((a, i) => {
-    const strippedHtml = a?.body?.replace(/<[^>]+>/g, '').slice(0, 200) + '...';
-
-    return {
-      ...a,
-      publishedAt: new Date(a.publishedAt).toLocaleString('id-ID', {
-        timeZone: 'Asia/Jakarta',
-        month: 'long',
-        day: 'numeric',
-        year: 'numeric',
-        hour: 'numeric',
-        minute: 'numeric',
-      }),
-      body: strippedHtml,
-      categories: a.categories.name,
-      tag: a.tag.map((b, i) => {
-        return b.tag.name;
-      }),
-    };
-  });
 
   return {
     props: {
-      listPost: newListPost,
       menuItem: getMenu,
     },
   };

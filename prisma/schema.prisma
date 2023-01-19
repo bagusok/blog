@@ -80,3 +80,18 @@ model NavbarChild {
   parent   Navbar? @relation(fields: [parentID], references: [id], onDelete: Cascade, onUpdate: Cascade)
   parentID Int
 }
+
+model SiteSetting {
+  id          Int      @id @default(autoincrement())
+  siteName    String   @unique
+  siteUrl     String
+  siteLogo    String[]
+  siteFavicon String[]
+
+  uploadFileProvider UPLOAD_PROVIDER @default(S3)
+}
+
+enum UPLOAD_PROVIDER {
+  S3
+  CLOUDINARY
+}

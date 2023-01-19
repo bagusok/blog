@@ -2,34 +2,28 @@ import SideBar from '../../../components/user/Sidebar';
 import Image from 'next/image';
 import useSWR, { useSWRConfig, mutate } from 'swr';
 import { fetchWithToken } from '../../../lib/fetcher';
-
 import { BsTrash, BsFillPencilFill, BsShare } from 'react-icons/bs';
 import { HiGlobe } from 'react-icons/hi';
 import { useAtomValue } from 'jotai';
-import { jwtToken } from '../../../store/cookies';
 import { useRouter } from 'next/router';
 import { toast, ToastBar, Toaster } from 'react-hot-toast';
 import moment from 'moment/moment';
-import handleNotAuthentication from '../../../lib/logout';
 import { useState } from 'react';
 
-export default function Post() {
-  const getJwtToken = useAtomValue(jwtToken);
+import { parseCookies } from 'nookies';
+
+export default function Post({ token }) {
   const router = useRouter();
   const [createButtonIsLoading, setCreateButtonIsLoading] = useState(false);
 
-  const { data, error, isLoading } = useSWR(['/api/v1/user/post', getJwtToken], fetchWithToken);
-
-  if (error?.status == 401) {
-    handleNotAuthentication(router);
-  }
+  const { data, error, isLoading } = useSWR(['/api/v1/user/post', token], fetchWithToken);
 
   const handleCreatePost = async () => {
     setCreateButtonIsLoading(true);
     const createPost = await fetch('/api/v1/user/post/create-post', {
       method: 'POST',
       headers: {
-        authorization: `Bearer ${getJwtToken}`,
+        authorization: `Bearer ${token}`,
       },
     });
     try {
@@ -53,7 +47,7 @@ export default function Post() {
     const deletePost = await fetch('/api/v1/user/post/delete-post', {
       method: 'POST',
       headers: {
-        authorization: `Bearer ${getJwtToken}`,
+        authorization: `Bearer ${token}`,
         'content-type': 'application/json',
       },
       body: JSON.stringify({ postId: id }),
@@ -62,7 +56,7 @@ export default function Post() {
       const res = await deletePost.json();
       if (res.status) {
         toast.success(res.message);
-        mutate(['/api/v1/user/post', getJwtToken]);
+        mutate(['/api/v1/user/post', token]);
         // router.reload();
       } else {
         toast.error(res.message);
@@ -77,7 +71,7 @@ export default function Post() {
       method: 'POST',
       headers: {
         'content-type': 'application/json',
-        authorization: `Bearer ${getJwtToken}`,
+        authorization: `Bearer ${token}`,
       },
       body: JSON.stringify({ postId: id, isPublished: !isPublished }),
     });
@@ -87,7 +81,7 @@ export default function Post() {
 
       if (res.status) {
         toast.success(res.message);
-        mutate(['/api/v1/user/post', getJwtToken]);
+        mutate(['/api/v1/user/post', token]);
       } else {
         toast.error(res.message);
       }
@@ -123,7 +117,7 @@ export default function Post() {
                 <div className="inline-flex gap-2 w-2/3">
                   <Image
                     alt="My First Blog Post"
-                    src="https://bagusoks.nyc3.digitaloceanspaces.com/blog/wVjBNogjCKTX0j_FN_tANX9Jnbq0xO.webp"
+                    src={post.thumbnail}
                     width={75}
                     height={75}
                     className="rounded-md object-cover h-auto w-[75px]"
@@ -201,4 +195,24 @@ export function ListPostSkeleton() {
       })}
     </>
   );
+}
+
+export function getServerSideProps(ctx) {
+  const cookie = parseCookies(ctx);
+  const token = cookie.token;
+
+  if (!token) {
+    return {
+      redirect: {
+        destination: '/user/auth/login',
+        permanent: false,
+      },
+    };
+  }
+
+  return {
+    props: {
+      token,
+    },
+  };
 }

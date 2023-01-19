@@ -11,13 +11,14 @@ import { fetcher } from '../../../../lib/fetcher';
 import ListedImages from '../../../../components/text-editor/image-modal/ListedImages';
 import { checkedValue } from '../../../../components/text-editor/image-modal/ListedImages';
 import { toast, Toaster } from 'react-hot-toast';
-import { jwtToken } from '../../../../store/cookies';
 import SideBar from '../../../../components/user/Sidebar';
 import { useRouter } from 'next/router';
 
+import { parseCookies } from 'nookies';
+
 export const editorContent = atom('jaja');
 
-export default function EditPost({ dataPostDetail }) {
+export default function EditPost({ token }) {
   const [showModalUplod, setShowModalUpload] = useAtom(openModalUpload);
   const getUrlThumbnail = useAtomValue(checkedValue);
   const editorHtml = useAtomValue(editorValue);
@@ -25,7 +26,6 @@ export default function EditPost({ dataPostDetail }) {
 
   const setEditorContent = useSetAtom(editorContent);
 
-  const getCookies = useAtomValue(jwtToken);
   const router = useRouter();
   const [publishButtonIsLoading, setPublishButtonIsLoading] = useState({
     isPublished: false,
@@ -74,7 +74,7 @@ export default function EditPost({ dataPostDetail }) {
       method: 'POST',
       headers: {
         'content-type': 'application/json',
-        authorization: 'Bearer ' + getCookies,
+        authorization: 'Bearer ' + token,
       },
       body: JSON.stringify(data),
     });
@@ -102,7 +102,7 @@ export default function EditPost({ dataPostDetail }) {
   const getPostDetail = async (postId) => {
     const getPost = await fetch(`/api/v1/user/post/get-post-detail?postId=${postId}`, {
       method: 'GET',
-      headers: { authorization: `Bearer ${getCookies}` },
+      headers: { authorization: `Bearer ${token}` },
     });
     try {
       const res = await getPost.json();
@@ -243,4 +243,23 @@ export default function EditPost({ dataPostDetail }) {
       </div>
     </>
   );
+}
+
+export async function getServerSideProps(ctx) {
+  const cookies = await parseCookies(ctx);
+
+  const { postId } = ctx.query;
+
+  if (!cookies.token) {
+    return {
+      redirect: {
+        destination: '/user/auth/login',
+        permanent: false,
+      },
+    };
+  }
+
+  return {
+    props: { token: cookies?.token },
+  };
 }

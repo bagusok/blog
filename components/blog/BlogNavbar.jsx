@@ -23,16 +23,10 @@ export default function BlogNavbar() {
           placeholder="Search Here..."
         />
       </div>
-      <div className="group lg:w-3/12 inline-flex justify-end items-center gap-2 pr-5 lg:pr-5">
+      <div className="group lg:w-3/12 inline-flex justify-end items-center gap-2 pr-5 lg:pr-6">
         <HiOutlineMoon className="w-8 h-8 font-regular " />
-        <div className="rounded-full w-12 h-12">
-          <Image
-            src="https://bagusoks.nyc3.digitaloceanspaces.com/blog/kjMEZifk1cccJgd1aBdO3JxxiEvthk.webp"
-            alt="profile"
-            width={60}
-            height={60}
-            className="w-12 h-12"
-          />
+        <div className="rounded-full w-9 h-9">
+          <Image src="/images/avatar.png" alt="profile" width={40} height={40} className="w-9 h-9" />
         </div>
       </div>
     </header>

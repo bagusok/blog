@@ -1,5 +1,7 @@
 import { useAtom, useAtomValue, useSetAtom } from 'jotai';
 import { useState } from 'react';
+import { mutate } from 'swr';
+import { fetcher } from '../../../lib/fetcher';
 import { checkedValue } from './ListedImages';
 
 export default function ButtonSelectImage({ onAddImage, onDeleteImage }) {
@@ -11,24 +13,24 @@ export default function ButtonSelectImage({ onAddImage, onDeleteImage }) {
 
   const handleDeleteImage = async () => {
     setLoadingDelete(true);
-    const get = await fetch(
-      'http://localhost:3000/api/v1/user/post/delete-images',
-      {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ key: getUrl.path }),
-      }
-    );
+    const get = await fetch('http://localhost:3000/api/v1/user/post/delete-images', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ key: getUrl.path, type: getUrl.type }),
+    });
 
     try {
-      onDeleteImage();
+      const res = await get.json();
       setLoadingDelete(false);
+      window.alert(res.message);
     } catch (e) {
       setLoadingDelete(false);
-      window.alert('Error Delete Image');
+      window.alert(e);
     }
+    mutate('/api/v1/user/post/get-images?type=s3', fetcher);
+    mutate('/api/v1/user/post/get-images?type=cloudinary', fetcher);
   };
 
   const handleSelectImage = async () => {
@@ -38,7 +40,7 @@ export default function ButtonSelectImage({ onAddImage, onDeleteImage }) {
 
   return (
     <>
-      <div className="w-full flex justify-between items-center px-4 w-full h-12 bg-blue-500 absolute bottom-0 right-0">
+      <div className="flex justify-between items-center px-4 w-full h-12 bg-blue-500 absolute bottom-0 right-0">
         <div className="form-alt ">
           <input
             className="text-sm font-normal p-2 rounded-sm h-8 w-32 md:w-48"

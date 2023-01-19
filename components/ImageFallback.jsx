@@ -9,7 +9,7 @@ export default function ImageFallback({ src, ...rest }) {
     setOldSrc(src);
   }
 
-  const fallbackSrc = '/no-image.png';
+  const fallbackSrc = '/images/no-image.png';
 
   return (
     <Image
