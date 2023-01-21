@@ -38,13 +38,13 @@ export default async function handler(req, res) {
 
   const form = formidable();
 
-  form.maxFileSize = 5 * 1024 * 1024; // <5Mb
-  form.parse(req, async (err, fields, files) => {
-    if (!files) {
-      return res.status(400).json({ status: false, message: 'No file Uploaded' });
-    }
+  try {
+    form.maxFileSize = 5 * 1024 * 1024; // <5Mb
+    form.parse(req, async (err, fields, files) => {
+      if (!files) {
+        return res.status(400).json({ status: false, message: 'No file Uploaded' });
+      }
 
-    try {
       if (checkUploadProvider.uploadFileProvider === 'CLOUDINARY') {
         const uploadCLoudinary = await cloudinary.uploader.upload(files.image.filepath, {
           unique_filename: true,
@@ -74,9 +74,9 @@ export default async function handler(req, res) {
         const data = await s3Client.send(new PutObjectCommand(bucketParams));
         return res.status(201).json({ status: true, data });
       }
-    } catch (e) {
-      return res.status(500).json({ status: false, message: e.message });
-    }
-  });
-  return res.status(500).json({ status: false, message: 'Eroor' });
+    });
+  } catch (err) {
+    console.log(err.message);
+    return res.status(201).json({ status: true, msg: 'ssjjs', err: err.message });
+  }
 }
