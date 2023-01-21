@@ -2,9 +2,9 @@ import { PutObjectCommand, S3 } from '@aws-sdk/client-s3';
 import formidable from 'formidable';
 import { nanoid } from 'nanoid';
 import sharp from 'sharp';
-
 import { v2 as cloudinary } from 'cloudinary';
 import { prismaOrm } from '../../../../../lib/prisma';
+
 cloudinary.config({
   cloud_name: 'dndupq223',
   api_key: '873149264828512',
@@ -28,13 +28,13 @@ export const config = {
 };
 
 export default async function handler(req, res) {
+  if (req.method !== 'POST') return res.status(405).json({ status: false, message: 'Method Not Allowed' });
+
   const checkUploadProvider = await prismaOrm.SiteSetting.findFirst({
     select: {
       uploadFileProvider: true,
     },
   });
-
-  console.log(checkUploadProvider);
 
   const form = formidable();
 
@@ -54,7 +54,7 @@ export default async function handler(req, res) {
         return res.status(200).json({
           status: true,
           message: 'Upload Image Success',
-          data: { id: uploadCLoudinary.asset_id, url: uploadCLoudinary.secure_url },
+          data: uploadCLoudinary,
         });
       } else {
         const convertImage = await sharp(files.image.filepath)
@@ -77,7 +77,6 @@ export default async function handler(req, res) {
     } catch (e) {
       return res.status(500).json({ status: false, message: e.message });
     }
-
-    return res.status(403).json({ status: false, message: 'Input harus image kurang dari 5Mb' });
   });
+  return res.status(500).json({ status: false, message: 'Eroor' });
 }

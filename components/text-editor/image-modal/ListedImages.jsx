@@ -6,6 +6,7 @@ import Image from 'next/image';
 import { Tab } from '@headlessui/react';
 import { fetcher } from '../../../lib/fetcher';
 import useSwr, { mutate } from 'swr';
+import { toast, ToastBar, Toaster } from 'react-hot-toast';
 
 export const checkedValue = atom({});
 
@@ -40,6 +41,7 @@ export default function ListedImages({ onAddImage }) {
     try {
       const resJson = await post.json();
       if (resJson.status) {
+        toast.success(resJson.message);
       }
       setUploadLoading(false);
     } catch (e) {
@@ -55,6 +57,7 @@ export default function ListedImages({ onAddImage }) {
   };
   return (
     <div className="w-screen px-3 min-h-screen max-h-full bg-slate-300/50 top-0 flex justify-center items-center z-30 fixed right-0">
+      <Toaster />
       <button
         className="absolute top-2 right-2"
         onClick={() =>

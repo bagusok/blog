@@ -33,7 +33,7 @@ export default function Login() {
       const res = await login.json();
       if (res.status === true) {
         setCookie(null, 'token', res.token, {
-          path: '/user',
+          path: '/',
           maxAge: 30 * 24 * 60 * 60,
         });
         setToken(res.token);
