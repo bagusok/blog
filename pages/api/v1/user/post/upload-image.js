@@ -75,7 +75,7 @@ export default async function handler(req, res) {
         return res.status(201).json({ status: true, data });
       }
     } catch (e) {
-      console.log(e.message);
+      return res.status(500).json({ status: false, message: e.message });
     }
 
     return res.status(403).json({ status: false, message: 'Input harus image kurang dari 5Mb' });

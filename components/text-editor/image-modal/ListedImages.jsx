@@ -44,7 +44,7 @@ export default function ListedImages({ onAddImage }) {
       setUploadLoading(false);
     } catch (e) {
       setUploadLoading(false);
-      console.log('Eror Upload');
+      console.log('eror upload', e);
     }
     mutate('/api/v1/user/post/get-images?type=s3', fetcher);
     mutate('/api/v1/user/post/get-images?type=cloudinary', fetcher);

@@ -213,12 +213,20 @@ export async function getStaticProps({ params }) {
       notFound: true,
     };
 
-  const menuItem = await fetch(`${process.env.BASE_URL}/api/v1/list-menu`).then((res) => res.json());
+  // const menuItem = await fetch(`${process.env.BASE_URL}/api/v1/list-menu`).then((res) => res.json());
+  const menuItem = await prisma.navbar.findMany({
+    select: {
+      id: true,
+      name: true,
+      url: true,
+      icon: true,
+    },
+  });
 
   return {
     props: {
       post: { ...post, url: `${process.env.BASE_URL}/${post.slug}` },
-      menuItem: menuItem.data,
+      menuItem: menuItem,
     },
     revalidate: 10,
   };
@@ -228,6 +236,9 @@ export async function getStaticPaths(params) {
   const post = await prisma.Post.findMany({
     select: {
       slug: true,
+    },
+    where: {
+      isPublished: true,
     },
   });
 
