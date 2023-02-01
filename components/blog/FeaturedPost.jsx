@@ -16,7 +16,7 @@ export default function FeaturedPost() {
   return (
     <>
       <div className="w-full mt-3 flex flex-col gap-3 md:sticky md:top-16 lg:top-3">
-        <h2 className="text-md font-semibold text-black">Related Post</h2>
+        <h2 className="text-md font-semibold text-black">Latest Post</h2>
         {isLoading && <FeaturedPostSkeleton />}
         {error && <p>Something went wrong</p>}
         {data &&
@@ -38,7 +38,7 @@ export default function FeaturedPost() {
                 <div className="w-3/4 flex flex-col ml-3">
                   <Link
                     href={`/${post.slug}`}
-                    className="text-base lg:text-sm font-semibold text-black h-16 text-ellipsis max-w-full overflow-hidden hover:underline"
+                    className="text-base font-semibold text-black h-16 text-ellipsis max-w-full overflow-hidden hover:underline"
                   >
                     {post.title}
                   </Link>

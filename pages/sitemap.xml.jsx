@@ -5,19 +5,34 @@ function generateSiteMap(posts) {
   <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9 http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd">
      <!--We manually set the two URLs we know already-->
      <url>
-       <loc>${process.env.BASE_URL}/</loc>
+      <loc>${process.env.BASE_URL}/</loc>
+      <lastmod>${new Date().toISOString()}</lastmod>
+      <changefreq>daily</changefreq>
+      <priority>0.8</priority>
      </url>
      <url>
-       <loc>${process.env.BASE_URL}/pages/about</loc>
+      <loc>${process.env.BASE_URL}/pages/about</loc>
+      <lastmod>${new Date().toISOString()}</lastmod>
+      <changefreq>daily</changefreq>
+      <priority>0.8</priority>
      </url>
      <url>
-       <loc>${process.env.BASE_URL}/pages/contact</loc>
+      <loc>${process.env.BASE_URL}/pages/contact</loc>
+      <lastmod>${new Date().toISOString()}</lastmod>
+      <changefreq>daily</changefreq>
+      <priority>0.8</priority>
      </url>
      <url>
-       <loc>${process.env.BASE_URL}/pages/privacy-policy</loc>
+      <loc>${process.env.BASE_URL}/pages/privacy-policy</loc>
+      <lastmod>${new Date().toISOString()}</lastmod>
+      <changefreq>daily</changefreq>
+      <priority>0.8</priority>
      </url>
      <url>
-       <loc>${process.env.BASE_URL}/pages/terms-and-conditions</loc>
+      <loc>${process.env.BASE_URL}/pages/terms-and-conditions</loc>
+      <lastmod>${new Date().toISOString()}</lastmod>
+      <changefreq>daily</changefreq>
+      <priority>0.8</priority>
      </url>
      ${posts
        .map((a) => {

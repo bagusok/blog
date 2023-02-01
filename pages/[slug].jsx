@@ -4,7 +4,6 @@ import BlogSidebar from '../components/blog/BlogSidebar';
 import { CiShare1 } from 'react-icons/ci';
 import BlogFooter from '../components/blog/BlogFooter';
 import { useRouter } from 'next/router';
-import { PrismaClient } from '@prisma/client';
 import Head from 'next/head';
 import ImageFallback from '../components/ImageFallback';
 import { unified } from 'unified';
@@ -16,11 +15,9 @@ import { nanoid } from 'nanoid';
 import Link from 'next/link';
 import dynamic from 'next/dynamic';
 import RelatedPost from '../components/blog/RelatedPost';
-
-const prisma = new PrismaClient();
+import { prismaOrm } from '../lib/prisma';
 
 const AsideDynamic = dynamic(() => import('../components/blog/Aside'), { ssr: false });
-const RelatedPostDynamic = dynamic(() => import('../components/blog/RelatedPost'), { ssr: false });
 
 export default function PostDetail(props) {
   const { post } = props;
@@ -29,6 +26,8 @@ export default function PostDetail(props) {
   if (router.isFallback) {
     return <p>Loading...</p>;
   }
+
+  const readTime = Math.ceil(post.body?.replace(/<[^>]+>/g, '').split(' ').length / 255);
 
   return (
     <>
@@ -81,10 +80,19 @@ export default function PostDetail(props) {
                 </div>
                 <div>
                   <p className="text-base font-semibold text-black">{post?.author?.fullName}</p>
-                  <p className="text-sm font-regular text-slate-500">Last Update: 1 Januari 2023</p>
+                  <p className="text-sm font-regular text-slate-500">
+                    {new Date(post?.publishedAt).toLocaleString('id-ID', {
+                      day: 'numeric',
+                      month: 'long',
+                      year: 'numeric',
+                      hour: 'numeric',
+                      minute: 'numeric',
+                    })}
+                  </p>
                 </div>
               </div>
-              <div className="inline-flex">
+              <div className="inline-flex items-center gap-3">
+                <div className="rounded-full font-light italic text-sm text-gray-400">{readTime} min read</div>
                 <CiShare1 className="text-melrose-300 w-6 h-6 cursor-pointer" />
               </div>
             </div>
@@ -101,10 +109,10 @@ export default function PostDetail(props) {
               />
             </div>
 
-            <div className="prose">
+            <div className="prose lg:prose-lg prose-p:text-base  prose- w-full">
               {/* Table Of Contents */}
 
-              <details className="cursor-pointer bg-slate-100 p-2 rounded-lg mt-8 w-full">
+              <details className="cursor-pointer bg-slate-100 p-2 rounded-lg mt-10 w-full">
                 <summary>Table Of Contents</summary>
                 <ul className="list-disc" id="tableOfContents">
                   {post?.table_of_contents?.map((toc, i) => {
@@ -132,7 +140,7 @@ export default function PostDetail(props) {
 
               {/* Post Body */}
               <div
-                className="mt-2"
+                className="mt-2 w-full"
                 dangerouslySetInnerHTML={{
                   __html: post?.body?.toString(),
                 }}
@@ -205,7 +213,7 @@ export default function PostDetail(props) {
 }
 
 export async function getStaticProps({ params }) {
-  const post = await prisma.Post.findUnique({
+  const post = await prismaOrm.Post.findUnique({
     where: {
       slug: params.slug,
     },
@@ -227,6 +235,7 @@ export async function getStaticProps({ params }) {
           tagName: true,
         },
       },
+      publishedAt: true,
     },
   });
 
@@ -235,8 +244,7 @@ export async function getStaticProps({ params }) {
       notFound: true,
     };
 
-  // const menuItem = await fetch(`${process.env.BASE_URL}/api/v1/list-menu`).then((res) => res.json());
-  const menuItem = await prisma.navbar.findMany({
+  const menuItem = await prismaOrm.navbar.findMany({
     select: {
       id: true,
       name: true,
@@ -282,7 +290,13 @@ export async function getStaticProps({ params }) {
 
   return {
     props: {
-      post: { ...post, body: content, table_of_contents: toc, url: `${process.env.BASE_URL}/${post.slug}` },
+      post: {
+        ...post,
+        body: content,
+        table_of_contents: toc,
+        url: `${process.env.BASE_URL}/${post.slug}`,
+        publishedAt: post.publishedAt.toISOString(),
+      },
       menuItem: menuItem,
     },
     revalidate: 10,
@@ -290,7 +304,7 @@ export async function getStaticProps({ params }) {
 }
 
 export async function getStaticPaths(params) {
-  const post = await prisma.Post.findMany({
+  const post = await prismaOrm.Post.findMany({
     skip: 0,
     take: 1,
     select: {

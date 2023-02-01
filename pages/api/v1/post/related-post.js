@@ -34,6 +34,7 @@ export default async function handler(req, res) {
         slug: a.post.slug,
         thumbnail: a.post.thumbnail,
         isPublished: a.post.isPublished,
+        publishedAt: a.post.publishedAt.toISOString(),
       };
     });
 

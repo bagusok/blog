@@ -45,7 +45,15 @@ export default function RelatedPost({ tags, postId }) {
                       <Link href={`/${post.slug}`} className="text-base font-semibold text-black hover:underline">
                         {post.title}
                       </Link>
-                      {/* <p className="text-sm font-regular text-slate-500">Last Update: 1 Januari 2023</p> */}
+                      <p className="text-sm font-regular text-slate-500">
+                        {new Date(post?.publishedAt).toLocaleString('id-ID', {
+                          day: 'numeric',
+                          month: 'long',
+                          year: 'numeric',
+                          hour: 'numeric',
+                          minute: 'numeric',
+                        })}
+                      </p>
                     </div>
                   </div>
                 );

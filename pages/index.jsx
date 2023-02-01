@@ -16,6 +16,7 @@ const AsideDynamic = dynamic(() => import('../components/blog/Aside'), { ssr: fa
 
 export default function Home({ menuItem, page }) {
   const { data: listPost, error, isLoading } = useSwr(`/api/v1/post?page=${page}`, fetcher);
+  const { data: listTags, error: errorTags, isLoading: isLoadingTags } = useSwr(`/api/v1/post/get-tags`, fetcher);
 
   const router = useRouter();
 
@@ -40,7 +41,7 @@ export default function Home({ menuItem, page }) {
 
         {/* <link rel="preload" href="/images/no-image.png" as="image" /> */}
 
-        <title>Bagusok</title>
+        <title>Bagusok Blog</title>
         <meta name="robots" content="all" />
 
         <meta name="author" content="Rizqi Bagus Andrean" />
@@ -49,7 +50,7 @@ export default function Home({ menuItem, page }) {
           content="Bagus, Bagusok, Rizqi Bagus Andrean, tutorial, bagusok blog, Rizqi Bagus Andrean Blog, Bagus Blog, blog, blog pemrograman, jaringan, linux, mobile legend, free fire, aplikasi"
         />
 
-        <meta name="title" content="Bagusok" />
+        <meta name="title" content="Bagusok Blog" />
         <meta
           name="description"
           content="Blog untuk sharing seputar teknologi yang berkembang di masyarakat bumi, maupun planet lain."
@@ -198,39 +199,18 @@ export default function Home({ menuItem, page }) {
               <p className="text-sm text-slate-500">ADS BANNER</p>
             </div>
             <div className="flex flex-row flex-wrap gap-2 mt-8">
-              <button className="bg-white border border-slate-300 py-1 px-3 text-sm font-light text-slate-500 rounded-sm hover:border-melrose-300 hover:bg-melrose-300 hover:text-white">
-                React
-              </button>
-              <button className="bg-white border border-slate-300 py-1 px-3 text-sm font-light text-slate-500 rounded-sm hover:border-melrose-300 hover:bg-melrose-300 hover:text-white">
-                Vue
-              </button>
-              <button className="bg-white border border-slate-300 py-1 px-3 text-sm font-light text-slate-500 rounded-sm hover:border-melrose-300 hover:bg-melrose-300 hover:text-white">
-                Laravel
-              </button>
-              <button className="bg-white border border-slate-300 py-1 px-3 text-sm font-light text-slate-500 rounded-sm hover:border-melrose-300 hover:bg-melrose-300 hover:text-white">
-                Next.js
-              </button>
-              <button className="bg-white border border-slate-300 py-1 px-3 text-sm font-light text-slate-500 rounded-sm hover:border-melrose-300 hover:bg-melrose-300 hover:text-white">
-                Buku Terbaru
-              </button>
-              <button className="bg-white border border-slate-300 py-1 px-3 text-sm font-light text-slate-500 rounded-sm hover:border-melrose-300 hover:bg-melrose-300 hover:text-white">
-                TailwindCSS
-              </button>
-              <button className="bg-white border border-slate-300 py-1 px-3 text-sm font-light text-slate-500 rounded-sm hover:border-melrose-300 hover:bg-melrose-300 hover:text-white">
-                Landing Page
-              </button>
-              <button className="bg-white border border-slate-300 py-1 px-3 text-sm font-light text-slate-500 rounded-sm hover:border-melrose-300 hover:bg-melrose-300 hover:text-white">
-                Next.js
-              </button>
-              <button className="bg-white border border-slate-300 py-1 px-3 text-sm font-light text-slate-500 rounded-sm hover:border-melrose-300 hover:bg-melrose-300 hover:text-white">
-                Buku Terbaru
-              </button>
-              <button className="bg-white border border-slate-300 py-1 px-3 text-sm font-light text-slate-500 rounded-sm hover:border-melrose-300 hover:bg-melrose-300 hover:text-white">
-                TailwindCSS
-              </button>
-              <button className="bg-white border border-slate-300 py-1 px-3 text-sm font-light text-slate-500 rounded-sm hover:border-melrose-300 hover:bg-melrose-300 hover:text-white">
-                Landing Page
-              </button>
+              {!isLoadingTags &&
+                !errorTags &&
+                listTags?.data?.map((a, i) => {
+                  return (
+                    <button
+                      key={i}
+                      className="bg-white border border-slate-300 py-1 px-3 text-sm font-light text-slate-500 rounded-sm hover:border-slate-300 hover:bg-slate-300 hover:text-white"
+                    >
+                      {a.name}
+                    </button>
+                  );
+                })}
             </div>
           </article>
           <AsideDynamic />
