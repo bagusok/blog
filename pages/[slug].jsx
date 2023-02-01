@@ -24,8 +24,6 @@ export default function PostDetail(props) {
   const { post } = props;
   const router = useRouter();
 
-  console.log(post.body);
-
   if (router.isFallback) {
     return <p>Loading...</p>;
   }
@@ -296,7 +294,7 @@ export async function getStaticProps({ params }) {
       };
     })
     .use(rehypeStringify)
-    .processSync(post.body)
+    .processSync(post?.body)
     .toString();
 
   return {
@@ -310,6 +308,8 @@ export async function getStaticProps({ params }) {
 
 export async function getStaticPaths(params) {
   const post = await prisma.Post.findMany({
+    skip: 0,
+    take: 1,
     select: {
       slug: true,
     },
