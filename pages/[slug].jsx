@@ -1,6 +1,4 @@
 import Image from 'next/image';
-import xss from 'xss';
-import Aside from '../components/blog/Aside';
 import BlogNavbar from '../components/blog/BlogNavbar';
 import BlogSidebar from '../components/blog/BlogSidebar';
 import { CiShare1 } from 'react-icons/ci';
@@ -9,12 +7,24 @@ import { useRouter } from 'next/router';
 import { PrismaClient } from '@prisma/client';
 import Head from 'next/head';
 import ImageFallback from '../components/ImageFallback';
+import { unified } from 'unified';
+import rehypeParse from 'rehype-parse';
+import { visit } from 'unist-util-visit';
+import parameterize from 'parameterize';
+import rehypeStringify from 'rehype-stringify';
+import { nanoid } from 'nanoid';
+import Link from 'next/link';
+import dynamic from 'next/dynamic';
 
 const prisma = new PrismaClient();
+
+const AsideDynamic = dynamic(() => import('../components/blog/Aside'), { ssr: false });
 
 export default function PostDetail(props) {
   const { post } = props;
   const router = useRouter();
+
+  console.log(post.body);
 
   if (router.isFallback) {
     return <p>Loading...</p>;
@@ -90,13 +100,44 @@ export default function PostDetail(props) {
                 className="object-cover w-full"
               />
             </div>
-            <div
-              {...props}
-              className="prose"
-              dangerouslySetInnerHTML={{
-                __html: xss(post?.body?.toString()),
-              }}
-            />
+
+            <div className="prose">
+              {/* Table Of Contents */}
+
+              <details className="cursor-pointer bg-slate-100 p-2 rounded-lg mt-8 w-full">
+                <summary>Table Of Contents</summary>
+                <ul className="list-disc" id="tableOfContents">
+                  {post?.table_of_contents?.map((toc, i) => {
+                    return (
+                      <li key={i} className="text-sm text-slate-500">
+                        <Link href={'#' + toc.id} className="no-underline hover:underline">
+                          {toc.text}
+                        </Link>
+                        {toc.children?.map((child, i) => {
+                          return (
+                            <ul key={i} className="list-disc ml-4">
+                              <li className="text-sm">
+                                <Link className="no-underline hover:underline" href={'#' + child.id}>
+                                  {child.text}
+                                </Link>
+                              </li>
+                            </ul>
+                          );
+                        })}
+                      </li>
+                    );
+                  })}
+                </ul>
+              </details>
+
+              {/* Post Body */}
+              <div
+                className="mt-2"
+                dangerouslySetInnerHTML={{
+                  __html: post?.body?.toString(),
+                }}
+              />
+            </div>
 
             <div className="flex flex-row flex-wrap gap-2 my-10">
               {post?.tag?.map((tag, i) => {
@@ -174,7 +215,7 @@ export default function PostDetail(props) {
               </button>
             </div>
           </article>
-          <Aside />
+          <AsideDynamic />
         </main>
         <BlogFooter />
       </div>
@@ -223,9 +264,44 @@ export async function getStaticProps({ params }) {
     },
   });
 
+  let toc = [];
+
+  const content = unified()
+    .use(rehypeParse, {
+      fragment: true,
+    })
+    .use(() => {
+      return (tree) => {
+        visit(tree, 'element', function (node) {
+          const id = parameterize(node.children[0]?.value || nanoid());
+          if (node.tagName == 'h2') {
+            node.properties.id = id;
+
+            toc.push({
+              id,
+              text: node.children[0]?.value || id,
+              children: [],
+            });
+          }
+          if (node.tagName == 'h3' && toc.length > 0) {
+            node.properties.id = id;
+            const parent = toc[toc.length - 1];
+            parent.children?.push({
+              id,
+              text: node.children[0]?.value || '',
+            });
+          }
+        });
+        return;
+      };
+    })
+    .use(rehypeStringify)
+    .processSync(post.body)
+    .toString();
+
   return {
     props: {
-      post: { ...post, url: `${process.env.BASE_URL}/${post.slug}` },
+      post: { ...post, body: content, table_of_contents: toc, url: `${process.env.BASE_URL}/${post.slug}` },
       menuItem: menuItem,
     },
     revalidate: 10,

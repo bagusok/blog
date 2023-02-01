@@ -5,7 +5,6 @@ import Select from 'react-select';
 import CreatableSelect from 'react-select/creatable';
 import slugify from 'slugify';
 import EditorForm, { editorValue, openModalUpload } from '../../../../components/text-editor/EditorForm';
-
 import useSWR from 'swr';
 import { fetcher } from '../../../../lib/fetcher';
 import ListedImages from '../../../../components/text-editor/image-modal/ListedImages';
@@ -13,7 +12,6 @@ import { checkedValue } from '../../../../components/text-editor/image-modal/Lis
 import { toast, Toaster } from 'react-hot-toast';
 import SideBar from '../../../../components/user/Sidebar';
 import { useRouter } from 'next/router';
-
 import { parseCookies } from 'nookies';
 
 export const editorContent = atom('jaja');

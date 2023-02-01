@@ -9,7 +9,6 @@ import { useRouter } from 'next/router';
 import { toast, ToastBar, Toaster } from 'react-hot-toast';
 import moment from 'moment/moment';
 import { useState } from 'react';
-
 import { parseCookies } from 'nookies';
 
 export default function Post({ token }) {

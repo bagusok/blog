@@ -103,8 +103,8 @@ export default function ListedImages({ onAddImage }) {
           </Tab.List>
           <Tab.Panels className="mt-2">
             <Tab.Panel>
-              <div className="w-full overflow-y-scroll h-full mt-2">
-                <ul className="flex flex-row flex-wrap gap-2 w-full h-full pb-5">
+              <div className="w-full overflow-y-scroll max-h-52 mt-2">
+                <ul className="flex flex-row flex-wrap gap-2 w-full pb-5">
                   {isLoadingCloudinary ? (
                     <p>Loading</p>
                   ) : imageCloudinary.data?.length < 1 ? (

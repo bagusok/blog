@@ -2,7 +2,6 @@ import { EditorContent } from '@tiptap/react';
 import Button from './button';
 import { useEditor } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
-import Dropcursor from '@tiptap/extension-dropcursor';
 import TextAlign from '@tiptap/extension-text-align';
 import Image from '@tiptap/extension-image';
 import { checkedValue } from './image-modal/ListedImages';
@@ -37,7 +36,10 @@ export default function EditorForm() {
       }),
       Image,
     ],
-    content: '<p>Hello World! 🌎</p>',
+    content: `<toc></toc>
+    <h2>1 heading</h2>
+    <p>paragraph</p>
+    `,
     editorProps: {
       attributes: {
         class: 'prose prose-sm sm:prose lg:prose-lg xl:prose-2xl m-5 focus:outline-none',
@@ -60,6 +62,7 @@ export default function EditorForm() {
 
   useEffect(() => {
     editor?.commands?.setContent(getEditorContent);
+    console.log('ini editor', editor?.getHTML());
   }, [getEditorContent, editor]);
 
   return (

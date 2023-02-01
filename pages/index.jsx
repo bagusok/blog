@@ -1,5 +1,4 @@
 import Image from 'next/image';
-import Aside from '../components/blog/Aside';
 import BlogSidebar from '../components/blog/BlogSidebar';
 import BlogNavbar from '../components/blog/BlogNavbar';
 import Link from 'next/link';
@@ -9,9 +8,25 @@ import { prismaOrm } from '../lib/prisma';
 import ImageFallback from '../components/ImageFallback';
 import useSwr from 'swr';
 import { fetcher } from '../lib/fetcher';
+import moment from 'moment';
+import dynamic from 'next/dynamic';
+import { useRouter } from 'next/router';
 
-export default function Home({ menuItem }) {
-  const { data: listPost, error, isLoading } = useSwr('/api/v1/post', fetcher);
+const AsideDynamic = dynamic(() => import('../components/blog/Aside'), { ssr: false });
+
+export default function Home({ menuItem, page }) {
+  const { data: listPost, error, isLoading } = useSwr(`/api/v1/post?page=${page}`, fetcher);
+
+  const router = useRouter();
+
+  const navigate = (page = 1) => {
+    return router.push({
+      pathname: '/',
+      query: {
+        page,
+      },
+    });
+  };
 
   return (
     <>
@@ -23,7 +38,7 @@ export default function Home({ menuItem }) {
         <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32.png" />
         <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16.png" />
 
-        <link rel="preload" href="/images/no-image.png" as="image" />
+        {/* <link rel="preload" href="/images/no-image.png" as="image" /> */}
 
         <title>Bagusok</title>
         <meta name="robots" content="all" />
@@ -64,80 +79,120 @@ export default function Home({ menuItem }) {
         <main className="w-full min-h-screen flex flex-col md:flex-row lg:flex-row lg:gap-2">
           <BlogSidebar menuItem={menuItem} />
           <article className="lg:w-7/12 md:w-8/12 mt-5 px-4 lg:px-2 relative">
-            <section className="featured flex flex-col lg:flex-row gap-4 lg:px-0">
-              <div className="lg:w-1/2 rounded-md overflow-hidden h-full w-auto">
-                <ImageFallback
-                  src={listPost?.data[0]?.thumbnail}
-                  loading="lazy"
-                  placeholder="blur"
-                  blurDataURL="LEHC4WWB2yk8pyoJadR*.7kCMdnj"
-                  alt="Image"
-                  width={500}
-                  height={500}
-                  className="object-cover w-full"
-                />
-              </div>
-              <div className="lg:w-1/2">
-                <Link
-                  href={`/${listPost?.data[0]?.slug}`}
-                  className="font-semibold text-black text-xl lg:text-lg hover:border-b-2 hover:border-slate-500 hover:opacity-70"
-                >
-                  {listPost?.data[0]?.title}
-                </Link>
-                <p className="hidden md:block font-regular text-sm text-slate-400 mt-2">{listPost?.data[0]?.body}</p>
-                <p className="block lg:hidden font-regular text-sm text-slate-500 mt-2">
-                  {listPost?.data[0]?.publishedAt}
-                </p>
-              </div>
-            </section>
+            {page == 1 && !isLoading && (
+              <section className="featured flex flex-col lg:flex-row gap-4 lg:px-0">
+                <div className="lg:w-1/2 rounded-md overflow-hidden h-full w-auto">
+                  <ImageFallback
+                    src={listPost?.data[0]?.thumbnail || '/images/no-image.png'}
+                    loading="lazy"
+                    placeholder="blur"
+                    blurDataURL="LEHC4WWB2yk8pyoJadR*.7kCMdnj"
+                    alt="Image"
+                    width={500}
+                    height={500}
+                    className="object-cover w-full"
+                  />
+                </div>
+                <div className="lg:w-1/2 flex flex-col justify-between">
+                  <div>
+                    <Link
+                      href={`/${listPost?.data[0]?.slug}`}
+                      className="font-semibold text-black text-xl lg:text-lg hover:border-b-2 hover:border-slate-500 hover:opacity-70"
+                    >
+                      {listPost?.data[0]?.title}
+                    </Link>
+                    <p className="hidden md:block font-regular text-sm text-slate-400 mt-2">
+                      {listPost?.data[0]?.body}
+                    </p>
+                  </div>
+                  <p className="block font-regular text-sm text-slate-500 mt-2">
+                    {new Date(listPost?.data[0]?.publishedAt).toLocaleDateString('id-ID', {
+                      year: 'numeric',
+                      month: 'long',
+                      day: 'numeric',
+                      hour: 'numeric',
+                      minute: 'numeric',
+                    })}
+                  </p>
+                </div>
+              </section>
+            )}
             <section id="latest-post-list">
               {isLoading && <PostListSkeleton count={5} />}
               {!error && !isLoading && (
                 <div className="latest-post flex flex-col md:flex-row flex-wrap lg:flex-row lg:flex-wrap gap-8 md:gap-0 lg:gap-0 mt-8 lg:mt-10">
-                  {listPost.data?.map((a, i) => {
-                    if (i !== 0)
-                      return (
-                        <div
-                          key={i}
-                          className="lg:w-1/3 md:w-1/2 flex flex-col justify-between rounded-md overflow-hidden md:p-2 lg:p-2 "
-                        >
-                          <div>
-                            <div className="image rounded-md overflow-hidden md:h-32 w-auto bg-slate-100/50 relative">
-                              <ImageFallback
-                                src={a.thumbnail}
-                                loading="lazy"
-                                placeholder="blur"
-                                blurDataURL="LEHC4WWB2yk8pyoJadR*.7kCMdnj"
-                                alt="Image"
-                                width={500}
-                                height={500}
-                                className="md:h-full w-full object-cover"
-                              />
-                            </div>
-                            <div className="text-body mt-1">
-                              <p className="font-semibold text-base text-melrose-400">{a.categories}</p>
-                              <Link
-                                href={`/${a.slug}`}
-                                className="font-semibold text-black text-xl lg:text-lg hover:border-b-2 hover:border-slate-500 hover:opacity-70"
-                              >
-                                {a.title}
-                              </Link>
-                            </div>
-                          </div>
-                          <p className="font-regular text-sm text-slate-500 mt-2">{a.publishedAt}</p>
-                        </div>
-                      );
+                  {listPost.data.map((a, i) => {
+                    if (i == 0 && page == 1) {
+                      return null;
+                    }
+                    return <ListPostSection key={i} data={a} />;
                   })}
                 </div>
               )}
             </section>
+            {/* Pagination */}
             <div className="flex justify-center mt-16">
-              <button
-                type="button"
-                className="rounded-md py-1 px-5 text-md font-medium text-white bg-melrose-300 hover:opacity-70 justify-self-center"
-              >
-                Next Page
-              </button>
+              <nav aria-label="Page navigation">
+                <ul className="inline-flex">
+                  {listPost?.prev && (
+                    <>
+                      <li>
+                        <button
+                          onClick={() => navigate(listPost?.prev)}
+                          className="h-10 px-5 text-blue-500 transition-colors duration-150 rounded-l-lg focus:shadow-outline hover:bg-indigo-100"
+                        >
+                          <svg className="w-4 h-4 fill-current" viewBox="0 0 20 20">
+                            <path
+                              d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z"
+                              clipRule="evenodd"
+                              fillRule="evenodd"
+                            ></path>
+                          </svg>
+                        </button>
+                      </li>
+                      <li>
+                        <button
+                          onClick={() => navigate(listPost?.prev)}
+                          className="h-10 px-5 text-blue-500 transition-colors duration-150 focus:shadow-outline hover:bg-indigo-100"
+                        >
+                          {listPost?.prev}
+                        </button>
+                      </li>
+                    </>
+                  )}
+                  <li>
+                    <button className="h-10 px-5 text-white transition-colors duration-150 bg-blue-500 rounded border border-r-0 focus:shadow-outline">
+                      {listPost?.page}
+                    </button>
+                  </li>
+                  {listPost?.next !== null && (
+                    <>
+                      <li>
+                        <button
+                          onClick={() => navigate(listPost?.next)}
+                          className="h-10 px-5 text-blue-500 transition-colors duration-150 focus:shadow-outline hover:bg-indigo-100"
+                        >
+                          {listPost?.next}
+                        </button>
+                      </li>
+                      <li>
+                        <button
+                          onClick={() => navigate(listPost?.next)}
+                          className="h-10 px-5 text-blue-500 transition-colors duration-150 bg-white rounded-r-lg focus:shadow-outline hover:bg-indigo-100"
+                        >
+                          <svg className="w-4 h-4 fill-current" viewBox="0 0 20 20">
+                            <path
+                              d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"
+                              clipRule="evenodd"
+                              fillRule="evenodd"
+                            ></path>
+                          </svg>
+                        </button>
+                      </li>
+                    </>
+                  )}
+                </ul>
+              </nav>
             </div>
             <div className="w-full mt-10 h-14 border border-dashed border-slate-500 flex justify-center items-center">
               <p className="text-sm text-slate-500">ADS BANNER</p>
@@ -178,7 +233,7 @@ export default function Home({ menuItem }) {
               </button>
             </div>
           </article>
-          <Aside />
+          <AsideDynamic />
         </main>
         <BlogFooter />
       </div>
@@ -213,9 +268,9 @@ export function PostListSkeleton({ count = 1 }) {
   );
 }
 
-export async function getServerSideProps() {
+export async function getServerSideProps(ctx) {
   // const getItem = await fetch(`${process.env.BASE_URL}/api/v1/list-menu`).then((res) => res.json());
-
+  const { page } = ctx.query;
   const getMenu = await prismaOrm.navbar.findMany({
     select: {
       id: true,
@@ -228,13 +283,52 @@ export async function getServerSideProps() {
     },
   });
 
-  console.log(getMenu);
-
   if (!getMenu) return { notFound: true };
 
   return {
     props: {
       menuItem: getMenu,
+      page,
     },
   };
 }
+
+export const ListPostSection = ({ data }) => {
+  console.log('aa', data);
+  return (
+    <div className="lg:w-1/3 md:w-1/2 flex flex-col justify-between rounded-md overflow-hidden md:p-2 lg:p-2 ">
+      <div>
+        <div className="image rounded-md overflow-hidden md:h-32 w-auto bg-slate-100/50 relative">
+          <ImageFallback
+            src={data.thumbnail}
+            loading="lazy"
+            placeholder="blur"
+            blurDataURL="LEHC4WWB2yk8pyoJadR*.7kCMdnj"
+            alt="Image"
+            width={500}
+            height={500}
+            className="md:h-full w-full object-cover"
+          />
+        </div>
+        <div className="text-body mt-1">
+          <p className="font-semibold text-base text-melrose-400">{data.categories}</p>
+          <Link
+            href={`/${data.slug}`}
+            className="font-semibold text-black text-xl lg:text-lg hover:border-b-2 hover:border-slate-500 hover:opacity-70"
+          >
+            {data.title}
+          </Link>
+        </div>
+      </div>
+      <p className="font-regular text-sm text-slate-500 mt-2">
+        {new Date(data.publishedAt).toLocaleString('id-ID', {
+          day: 'numeric',
+          month: 'long',
+          year: 'numeric',
+          hour: 'numeric',
+          minute: 'numeric',
+        })}
+      </p>
+    </div>
+  );
+};
