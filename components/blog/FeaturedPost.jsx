@@ -2,9 +2,16 @@ import Image from 'next/image';
 import { fetcher } from '../../lib/fetcher';
 import useSWR from 'swr';
 import ImageFallback from '../ImageFallback';
+import { useRouter } from 'next/router';
+import Link from 'next/link';
 
 export default function FeaturedPost() {
   const { data, error, isLoading } = useSWR('/api/v1/post/featured-post', fetcher);
+  const router = useRouter();
+
+  const navigate = (path) => {
+    router.push(path);
+  };
 
   return (
     <>
@@ -12,7 +19,6 @@ export default function FeaturedPost() {
         <h2 className="text-md font-semibold text-black">Related Post</h2>
         {isLoading && <FeaturedPostSkeleton />}
         {error && <p>Something went wrong</p>}
-        {data && console.log(data)}
         {data &&
           data.data?.map((post, i) => {
             return (
@@ -20,6 +26,7 @@ export default function FeaturedPost() {
                 <div className="w-1/4">
                   <div className="h-full w-auto lg:w-14 lg:h-14 rounded-md overflow-hidden bg-slate-200">
                     <ImageFallback
+                      onClick={() => navigate(`/${post.slug}`)}
                       src={post.thumbnail}
                       alt="Image"
                       width={500}
@@ -29,9 +36,12 @@ export default function FeaturedPost() {
                   </div>
                 </div>
                 <div className="w-3/4 flex flex-col ml-3">
-                  <h2 className="text-base lg:text-sm font-semibold text-black h-16 text-ellipsis max-w-full overflow-hidden">
+                  <Link
+                    href={`/${post.slug}`}
+                    className="text-base lg:text-sm font-semibold text-black h-16 text-ellipsis max-w-full overflow-hidden hover:underline"
+                  >
                     {post.title}
-                  </h2>
+                  </Link>
                 </div>
               </div>
             );

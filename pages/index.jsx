@@ -79,7 +79,7 @@ export default function Home({ menuItem, page }) {
         <main className="w-full min-h-screen flex flex-col md:flex-row lg:flex-row lg:gap-2">
           <BlogSidebar menuItem={menuItem} />
           <article className="lg:w-7/12 md:w-8/12 mt-5 px-4 lg:px-2 relative">
-            {page == 1 && !isLoading && (
+            {(page == 1 || (!page && !isLoading)) && (
               <section className="featured flex flex-col lg:flex-row gap-4 lg:px-0">
                 <div className="lg:w-1/2 rounded-md overflow-hidden h-full w-auto">
                   <ImageFallback
@@ -270,7 +270,7 @@ export function PostListSkeleton({ count = 1 }) {
 
 export async function getServerSideProps(ctx) {
   // const getItem = await fetch(`${process.env.BASE_URL}/api/v1/list-menu`).then((res) => res.json());
-  const { page } = ctx.query;
+  const page = ctx.query?.page || 1;
   const getMenu = await prismaOrm.navbar.findMany({
     select: {
       id: true,
@@ -287,8 +287,8 @@ export async function getServerSideProps(ctx) {
 
   return {
     props: {
-      menuItem: getMenu,
-      page,
+      menuItem: getMenu || null,
+      page: page || null,
     },
   };
 }

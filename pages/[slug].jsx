@@ -15,10 +15,12 @@ import rehypeStringify from 'rehype-stringify';
 import { nanoid } from 'nanoid';
 import Link from 'next/link';
 import dynamic from 'next/dynamic';
+import RelatedPost from '../components/blog/RelatedPost';
 
 const prisma = new PrismaClient();
 
 const AsideDynamic = dynamic(() => import('../components/blog/Aside'), { ssr: false });
+const RelatedPostDynamic = dynamic(() => import('../components/blog/RelatedPost'), { ssr: false });
 
 export default function PostDetail(props) {
   const { post } = props;
@@ -37,7 +39,7 @@ export default function PostDetail(props) {
         <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png" />
         <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32.png" />
         <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16.png" />
-        <link rel="preload" href="/no-image.png" as="image" />
+        {/* <link rel="preload" href="/images/no-image.png" as="image" /> */}
 
         <title>{post.title}</title>
         <meta name="robots" content="all" />
@@ -78,7 +80,7 @@ export default function PostDetail(props) {
                   />
                 </div>
                 <div>
-                  <h3 className="text-base font-semibold text-black">{post?.author?.fullName}</h3>
+                  <p className="text-base font-semibold text-black">{post?.author?.fullName}</p>
                   <p className="text-sm font-regular text-slate-500">Last Update: 1 Januari 2023</p>
                 </div>
               </div>
@@ -187,26 +189,7 @@ export default function PostDetail(props) {
                 +
               </button>
             </div>
-            <h3 className="text-lg font-regular text-black mt-8">Postingan yang mungkin anda suka</h3>
-            <div className="w-full overflow-x-auto mt-2">
-              <div className="inline-flex gap-3">
-                <div className="flex flex-col" style={{ width: '12rem' }}>
-                  <div className="h-full">
-                    <Image
-                      alt="thumbnail"
-                      src={post?.thumbnail}
-                      width={500}
-                      height={500}
-                      className="object-cover rounded-md"
-                    />
-                  </div>
-                  <div className="mt-2">
-                    <h3 className="text-base font-semibold text-black">{post?.title}</h3>
-                    <p className="text-sm font-regular text-slate-500">Last Update: 1 Januari 2023</p>
-                  </div>
-                </div>
-              </div>
-            </div>
+            <RelatedPost tags={post.tag || ''} postId={post.id} />
             <div className="mt-10">
               <button className="h-12 bg-transparent text-base font-medium border border-slate-400 hover:bg-slate-200 flex justify-center items-center w-full rounded-sm">
                 Berikan Komentar
