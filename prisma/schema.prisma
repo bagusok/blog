@@ -96,3 +96,17 @@ enum UPLOAD_PROVIDER {
   S3
   CLOUDINARY
 }
+
+model Pages {
+  id              Int       @id @default(autoincrement())
+  title           String?
+  slug            String    @unique
+  metaTitle       String?
+  metaDescription String?
+  body            String?
+  script          String?
+  thumbnail       String?
+  isPublished     Boolean   @default(false)
+  publishedAt     DateTime?
+  createdAt       DateTime  @default(now())
+}

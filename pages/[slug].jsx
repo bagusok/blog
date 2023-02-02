@@ -1,4 +1,5 @@
 import Image from 'next/image';
+import { useEffect } from 'react';
 import BlogNavbar from '../components/blog/BlogNavbar';
 import BlogSidebar from '../components/blog/BlogSidebar';
 import { CiShare1 } from 'react-icons/ci';
@@ -17,11 +18,38 @@ import dynamic from 'next/dynamic';
 import RelatedPost from '../components/blog/RelatedPost';
 import { prismaOrm } from '../lib/prisma';
 
+import hljs from 'highlight.js';
+import 'highlight.js/styles/night-owl.css';
+import css from 'highlight.js/lib/languages/css';
+import js from 'highlight.js/lib/languages/javascript';
+import ts from 'highlight.js/lib/languages/typescript';
+import html from 'highlight.js/lib/languages/xml';
+import { useMemo } from 'react';
+import { generateJSON } from '@tiptap/html';
+
+import Bold from '@tiptap/extension-bold';
+import Document from '@tiptap/extension-document';
+import Paragraph from '@tiptap/extension-paragraph';
+import Text from '@tiptap/extension-text';
+import StarterKit from '@tiptap/starter-kit';
+import Script from 'next/script';
+
+hljs.registerLanguage('html', html);
+hljs.registerLanguage('css', css);
+hljs.registerLanguage('js', js);
+hljs.registerLanguage('ts', ts);
+
 const AsideDynamic = dynamic(() => import('../components/blog/Aside'), { ssr: false });
 
 export default function PostDetail(props) {
   const { post } = props;
+
   const router = useRouter();
+
+  useEffect(() => {
+    const a = hljs.highlightAll();
+    console.log('higlight success', a);
+  }, [props]);
 
   if (router.isFallback) {
     return <p>Loading...</p>;
@@ -109,7 +137,7 @@ export default function PostDetail(props) {
               />
             </div>
 
-            <div className="prose lg:prose-lg prose-p:text-base  prose- w-full">
+            <div className="prose lg:prose-lg prose-p:text-base  prose-pre:bg-[#011627] w-full">
               {/* Table Of Contents */}
 
               <details className="cursor-pointer bg-slate-100 p-2 rounded-lg mt-10 w-full">
@@ -139,6 +167,7 @@ export default function PostDetail(props) {
               </details>
 
               {/* Post Body */}
+
               <div
                 className="mt-2 w-full"
                 dangerouslySetInnerHTML={{
@@ -281,6 +310,49 @@ export async function getStaticProps({ params }) {
             });
           }
         });
+        return;
+      };
+    })
+    .use(() => {
+      return (tree) => {
+        let countAll = 0;
+        let countH = 0;
+        visit(tree, 'element', function (node) {
+          countAll += 1;
+          if (node.tagName == 'h2') {
+            countH += 1;
+            if (countH % 4 == 0 || countH == 1) {
+              tree.children.splice(countAll - 1, 0, {
+                type: 'element',
+                tagName: 'div',
+                properties: {
+                  className:
+                    'w-full h-64 max-h-96 border-2 border-slate-500 border-dashed flex justify-center items-center rounded mt-5',
+                },
+                children: [
+                  {
+                    type: 'element',
+                    tagName: 'ins',
+                    properties: {
+                      className: 'adsbygoogle w-full h-full flex justify-center items-center',
+                      style: { display: 'block' },
+                      'data-ad-client': '123456789',
+                      'data-ad-slot': '123456789',
+                      'data-ad-format': '123456789',
+                    },
+                    children: [
+                      {
+                        type: 'text',
+                        value: 'Adsense Here',
+                      },
+                    ],
+                  },
+                ],
+              });
+            }
+          }
+        });
+        console.log(tree);
         return;
       };
     })

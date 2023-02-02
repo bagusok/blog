@@ -8,7 +8,6 @@ import { prismaOrm } from '../lib/prisma';
 import ImageFallback from '../components/ImageFallback';
 import useSwr from 'swr';
 import { fetcher } from '../lib/fetcher';
-import moment from 'moment';
 import dynamic from 'next/dynamic';
 import { useRouter } from 'next/router';
 

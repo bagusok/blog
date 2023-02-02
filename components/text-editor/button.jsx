@@ -51,94 +51,66 @@ export default function Button({ editor }) {
         <button
           onClick={() => editor.chain().focus().toggleBold().run()}
           disabled={!editor.can().chain().focus().toggleBold().run()}
-          className={
-            editor.isActive('bold') ? 'tiptap-btn-active' : 'tiptap-btn'
-          }
+          className={editor.isActive('bold') ? 'tiptap-btn-active' : 'tiptap-btn'}
         >
           bold
         </button>
         <button
           onClick={() => editor.chain().focus().toggleItalic().run()}
           disabled={!editor.can().chain().focus().toggleItalic().run()}
-          className={
-            editor.isActive('italic') ? 'tiptap-btn-active' : 'tiptap-btn'
-          }
+          className={editor.isActive('italic') ? 'tiptap-btn-active' : 'tiptap-btn'}
         >
           italic
         </button>
         <button
           onClick={() => editor.chain().focus().toggleStrike().run()}
           disabled={!editor.can().chain().focus().toggleStrike().run()}
-          className={
-            editor.isActive('strike') ? 'tiptap-btn-active' : 'tiptap-btn'
-          }
+          className={editor.isActive('strike') ? 'tiptap-btn-active' : 'tiptap-btn'}
         >
           strike
         </button>
         <button
           onClick={() => editor.chain().focus().toggleCode().run()}
           disabled={!editor.can().chain().focus().toggleCode().run()}
-          className={
-            editor.isActive('code') ? 'tiptap-btn-active' : 'tiptap-btn'
-          }
+          className={editor.isActive('code') ? 'tiptap-btn-active' : 'tiptap-btn'}
         >
           code
         </button>
-        <button
-          onClick={() => editor.chain().focus().unsetAllMarks().run()}
-          className="tiptap-btn"
-        >
+        <button onClick={() => editor.chain().focus().unsetAllMarks().run()} className="tiptap-btn">
           clear marks
         </button>
-        <button
-          onClick={() => editor.chain().focus().clearNodes().run()}
-          className="tiptap-btn"
-        >
+        <button onClick={() => editor.chain().focus().clearNodes().run()} className="tiptap-btn">
           clear nodes
         </button>
         <ButtonHeading editor={editor} />
         <button
           onClick={() => editor.chain().focus().toggleBulletList().run()}
-          className={
-            editor.isActive('bulletList') ? 'tiptap-btn-active' : 'tiptap-btn'
-          }
+          className={editor.isActive('bulletList') ? 'tiptap-btn-active' : 'tiptap-btn'}
         >
           bullet list
         </button>
         <button
           onClick={() => editor.chain().focus().toggleOrderedList().run()}
-          className={
-            editor.isActive('orderedList') ? 'tiptap-btn-active' : 'tiptap-btn'
-          }
+          className={editor.isActive('orderedList') ? 'tiptap-btn-active' : 'tiptap-btn'}
         >
           ordered list
         </button>
         <button
           onClick={() => editor.chain().focus().toggleCodeBlock().run()}
-          className={
-            editor.isActive('codeBlock') ? 'tiptap-btn-active' : 'tiptap-btn'
-          }
+          className={editor.isActive('codeBlock') ? 'tiptap-btn-active' : 'tiptap-btn'}
         >
           code block
         </button>
         <button
           onClick={() => editor.chain().focus().toggleBlockquote().run()}
-          className={
-            editor.isActive('blockquote') ? 'tiptap-btn-active' : 'tiptap-btn'
-          }
+          className={editor.isActive('blockquote') ? 'tiptap-btn-active' : 'tiptap-btn'}
         >
           blockquote
         </button>
-        <button
-          onClick={() => editor.chain().focus().setHorizontalRule().run()}
-          className="tiptap-btn"
-        >
+        <button onClick={() => editor.chain().focus().setHorizontalRule().run()} className="tiptap-btn">
           horizontal rule
         </button>
-        <button
-          onClick={() => editor.chain().focus().setHardBreak().run()}
-          className="tiptap-btn"
-        >
+        <button onClick={() => editor.chain().focus().setHardBreak().run()} className="tiptap-btn">
           hard break
         </button>
         <button
@@ -155,13 +127,11 @@ export default function Button({ editor }) {
         >
           redo
         </button>
-        <button
-          onClick={() =>
-            setShowModalUpload({ ...showModalUplod, editor: true })
-          }
-          className="tiptap-btn"
-        >
+        <button onClick={() => setShowModalUpload({ ...showModalUplod, editor: true })} className="tiptap-btn">
           Img
+        </button>
+        <button onClick={() => editor.chain().focus().setCustom().run()} className="tiptap-btn">
+          Custom
         </button>
       </div>
     </>

@@ -2,6 +2,9 @@
 module.exports = {
   content: ['./pages/**/*.{js,ts,jsx,tsx}', './components/**/*.{js,ts,jsx,tsx}'],
   theme: {
+    hljs: {
+      theme: 'night-owl',
+    },
     extend: {
       colors: {
         melrose: {
@@ -19,5 +22,10 @@ module.exports = {
       },
     },
   },
-  plugins: [require('@tailwindcss/typography'), require('@headlessui/tailwindcss')],
+  safelist: [
+    {
+      pattern: /hljs+/,
+    },
+  ],
+  plugins: [require('@tailwindcss/typography'), require('@headlessui/tailwindcss'), require('tailwind-highlightjs')],
 };

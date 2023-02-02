@@ -1,4 +1,4 @@
-import { EditorContent } from '@tiptap/react';
+import { EditorContent, ReactNodeViewRenderer } from '@tiptap/react';
 import Button from './button';
 import { useEditor } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
@@ -9,6 +9,20 @@ import ListedImages from './image-modal/ListedImages';
 import { atom, useAtom, useAtomValue, useSetAtom } from 'jotai';
 import { useEffect } from 'react';
 import { editorContent } from '../../pages/user/post/edit/[postId]';
+import CodeBlockLowlight from '@tiptap/extension-code-block-lowlight';
+import { mergeAttributes, Node } from '@tiptap/core';
+
+import { lowlight } from 'lowlight/lib/core';
+import css from 'highlight.js/lib/languages/css';
+import js from 'highlight.js/lib/languages/javascript';
+import ts from 'highlight.js/lib/languages/typescript';
+import html from 'highlight.js/lib/languages/xml';
+import CodeBlock from './extension/CodeBlock';
+
+lowlight.registerLanguage('html', html);
+lowlight.registerLanguage('css', css);
+lowlight.registerLanguage('js', js);
+lowlight.registerLanguage('ts', ts);
 
 export const openModalUpload = atom({
   editor: false,
@@ -27,8 +41,48 @@ export default function EditorForm() {
 
   const setEditor = useSetAtom(editorValue);
 
+  const CustomNode = Node.create({
+    name: 'customNode',
+    priority: 1000,
+    content: 'inline*',
+    group: 'block',
+    addOptions() {
+      return {
+        HTMLAttributes: {},
+      };
+    },
+    parseHTML() {
+      return [
+        {
+          tag: 'div',
+          style: '',
+        },
+      ];
+    },
+    renderHTML({ HTMLAttributes }) {
+      return ['div', mergeAttributes(this.options.HTMLAttributes, HTMLAttributes), 0];
+    },
+    addCommands() {
+      return {
+        setCustom:
+          () =>
+          ({ commands }) => {
+            return commands.setNode(this.name);
+          },
+      };
+    },
+
+    // Your code goes here.
+  });
+
   const editor = useEditor({
     extensions: [
+      CustomNode,
+      CodeBlockLowlight.extend({
+        addNodeView() {
+          return ReactNodeViewRenderer(CodeBlock);
+        },
+      }).configure({ lowlight }),
       StarterKit,
       TextAlign.configure({
         types: ['heading', 'paragraph'],
