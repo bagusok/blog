@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { BiArrowBack, BiNews } from 'react-icons/bi';
 import { RxHamburgerMenu } from 'react-icons/rx';
 import { AiOutlineSetting } from 'react-icons/ai';
+import { HiOutlineDocument } from 'react-icons/hi';
 import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
 import { atom, useAtomValue, useSetAtom } from 'jotai';
@@ -17,6 +18,13 @@ export default function SideBar() {
       isOpen: false,
       icon: <BiNews className="text-lg" />,
       url: '/user/post',
+    },
+    {
+      name: 'Blog Pages',
+      isActive: false,
+      isOpen: false,
+      icon: <HiOutlineDocument className="text-lg" />,
+      url: '/user/pages',
     },
     {
       name: 'Setting',

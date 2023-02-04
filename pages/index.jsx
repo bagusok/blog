@@ -13,7 +13,7 @@ import { useRouter } from 'next/router';
 
 const AsideDynamic = dynamic(() => import('../components/blog/Aside'), { ssr: false });
 
-export default function Home({ menuItem, page }) {
+export default function Home({ sidebar, page }) {
   const { data: listPost, error, isLoading } = useSwr(`/api/v1/post?page=${page}`, fetcher);
   const { data: listTags, error: errorTags, isLoading: isLoadingTags } = useSwr(`/api/v1/post/get-tags`, fetcher);
 
@@ -77,7 +77,7 @@ export default function Home({ menuItem, page }) {
       <div className="flex flex-col relative">
         <BlogNavbar />
         <main className="w-full min-h-screen flex flex-col md:flex-row lg:flex-row lg:gap-2">
-          <BlogSidebar menuItem={menuItem} />
+          <BlogSidebar sidebar={sidebar} />
           <article className="lg:w-7/12 md:w-8/12 mt-5 px-4 lg:px-2 relative">
             {(page == 1 || (!page && !isLoading)) && (
               <section className="featured flex flex-col lg:flex-row gap-4 lg:px-0">
@@ -250,30 +250,60 @@ export function PostListSkeleton({ count = 1 }) {
 export async function getServerSideProps(ctx) {
   // const getItem = await fetch(`${process.env.BASE_URL}/api/v1/list-menu`).then((res) => res.json());
   const page = ctx.query?.page || 1;
-  const getMenu = await prismaOrm.navbar.findMany({
+  const sidebar = await prismaOrm.NavbarCategory.findMany({
     select: {
-      id: true,
       name: true,
-      icon: true,
-      url: true,
+      menu: {
+        select: {
+          name: true,
+          url: true,
+          icon: true,
+          navbarItemChild: {
+            select: {
+              name: true,
+              url: true,
+            },
+          },
+        },
+      },
     },
     orderBy: {
       id: 'asc',
     },
   });
+  const newSidebar = sidebar.map((a, i) => {
+    const newMenu = a.menu.map((b, j) => {
+      const newNavbarItemChild = b.navbarItemChild.map((c, k) => {
+        return {
+          name: c.name,
+          url: c.url,
+        };
+      });
+      return {
+        name: b.name,
+        url: b.url,
+        icon: b.icon,
+        isOpen: false,
+        child: newNavbarItemChild,
+      };
+    });
+    return {
+      name: a.name,
+      child: newMenu,
+    };
+  });
 
-  if (!getMenu) return { notFound: true };
+  if (!sidebar) return { notFound: true };
 
   return {
     props: {
-      menuItem: getMenu || null,
+      sidebar: newSidebar || null,
       page: page || null,
     },
   };
 }
 
 export const ListPostSection = ({ data }) => {
-  console.log('aa', data);
   return (
     <div className="lg:w-1/3 md:w-1/2 flex flex-col justify-between rounded-md overflow-hidden md:p-2 lg:p-2 ">
       <div>

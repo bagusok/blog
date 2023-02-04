@@ -13,6 +13,8 @@ const AsideDynamic = dynamic(() => import('../components/blog/Aside'), { ssr: fa
 export default function Custom404() {
   const { data: listMenu, error: errorMenu, isLoading: isLoadingMenu } = useSwr(`/api/v1/list-menu`, fetcher);
 
+  console.log(listMenu?.data);
+
   const router = useRouter();
 
   const navigate = (page = 1) => {
@@ -73,7 +75,7 @@ export default function Custom404() {
       <div className="flex flex-col relative">
         <BlogNavbar />
         <main className="w-full min-h-screen flex flex-col md:flex-row lg:flex-row lg:gap-2">
-          <BlogSidebar menuItem={listMenu?.data} />
+          {!isLoadingMenu && !errorMenu && <BlogSidebar sidebar={listMenu?.data} />}
           <article className="lg:w-7/12 md:w-8/12 mt-5 px-4 lg:px-2 relative flex justify-center">
             <div className="h-80 w-80 overflow-hidden mt-10">
               <Image

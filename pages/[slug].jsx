@@ -24,15 +24,6 @@ import css from 'highlight.js/lib/languages/css';
 import js from 'highlight.js/lib/languages/javascript';
 import ts from 'highlight.js/lib/languages/typescript';
 import html from 'highlight.js/lib/languages/xml';
-import { useMemo } from 'react';
-import { generateJSON } from '@tiptap/html';
-
-import Bold from '@tiptap/extension-bold';
-import Document from '@tiptap/extension-document';
-import Paragraph from '@tiptap/extension-paragraph';
-import Text from '@tiptap/extension-text';
-import StarterKit from '@tiptap/starter-kit';
-import Script from 'next/script';
 
 hljs.registerLanguage('html', html);
 hljs.registerLanguage('css', css);
@@ -92,7 +83,7 @@ export default function PostDetail(props) {
       <div className="flex flex-col relative">
         <BlogNavbar />
         <main className="w-full min-h-screen flex flex-col md:flex-row lg:flex-row lg:justify-between lg:gap-2 relative">
-          <BlogSidebar menuItem={props.menuItem} />
+          <BlogSidebar sidebar={props.sidebar} />
           <article className="lg:w-7/12 md:w-8/12 mt-5 px-4 lg:px-5 relative overflow-hidden">
             <h1 className="text-3xl font-bold">{post?.title}</h1>
             <div className="w-full inline-flex justify-between items-center mt-4">
@@ -273,14 +264,50 @@ export async function getStaticProps({ params }) {
       notFound: true,
     };
 
-  const menuItem = await prismaOrm.navbar.findMany({
+  const sidebar = await prismaOrm.NavbarCategory.findMany({
     select: {
-      id: true,
       name: true,
-      url: true,
-      icon: true,
+      menu: {
+        select: {
+          name: true,
+          url: true,
+          icon: true,
+          navbarItemChild: {
+            select: {
+              name: true,
+              url: true,
+            },
+          },
+        },
+      },
+    },
+    orderBy: {
+      id: 'asc',
     },
   });
+  const newSidebar = sidebar.map((a, i) => {
+    const newMenu = a.menu.map((b, j) => {
+      const newNavbarItemChild = b.navbarItemChild.map((c, k) => {
+        return {
+          name: c.name,
+          url: c.url,
+        };
+      });
+      return {
+        name: b.name,
+        url: b.url,
+        icon: b.icon,
+        isOpen: false,
+        child: newNavbarItemChild,
+      };
+    });
+    return {
+      name: a.name,
+      child: newMenu,
+    };
+  });
+
+  if (!sidebar) return { notFound: true };
 
   let toc = [];
 
@@ -369,7 +396,7 @@ export async function getStaticProps({ params }) {
         url: `${process.env.BASE_URL}/${post.slug}`,
         publishedAt: post.publishedAt.toISOString(),
       },
-      menuItem: menuItem,
+      sidebar: newSidebar,
     },
     revalidate: 10,
   };

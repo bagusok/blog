@@ -1,9 +1,22 @@
 import Image from 'next/image';
+import { useRouter } from 'next/router';
 import { useState } from 'react';
 import { AiOutlineUser, AiOutlineLogout } from 'react-icons/ai';
+import { destroyCookie } from 'nookies';
 
 export default function UserProfile() {
   const [isOpen, setIsOpen] = useState(false);
+
+  const router = useRouter();
+
+  const handleLogout = () => {
+    console.log('logout');
+
+    destroyCookie(null, 'token', {
+      path: '/',
+    });
+    router.push('/user/auth/login');
+  };
 
   return (
     <>
@@ -21,7 +34,10 @@ export default function UserProfile() {
             <li className="inline-flex gap-2 items-center text-center rounded px-2 py-1 font-semibold hover:bg-orange-400">
               <AiOutlineUser /> <span>Profile</span>
             </li>
-            <li className="inline-flex gap-2 items-center text-center rounded px-2 py-1 font-semibold hover:bg-orange-400">
+            <li
+              onClick={() => handleLogout()}
+              className="inline-flex gap-2 items-center text-center rounded px-2 py-1 font-semibold hover:bg-orange-400"
+            >
               <AiOutlineLogout /> <span>Logout</span>
             </li>
           </ul>

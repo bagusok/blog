@@ -1,7 +1,6 @@
 import { atom, useAtom, useAtomValue, useSetAtom } from 'jotai';
 import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
-import Select from 'react-select';
 import CreatableSelect from 'react-select/creatable';
 import slugify from 'slugify';
 import EditorForm, { editorValue, openModalUpload } from '../../../../components/text-editor/EditorForm';
@@ -135,7 +134,7 @@ export default function EditPost({ token }) {
       <Toaster />
       {showModalUplod.thumbnail && <ListedImages onAddImage={addThumbnail} />}
 
-      <div className="w-full flex flex-col-reverse md:flex-row md:flex-row px-4 md:p-4 md:gap-4 relative">
+      <div className="w-full flex flex-col-reverse md:flex-row px-4 md:p-4 md:gap-4 relative">
         <div className="md:w-3/4 border-4 border-gray-200 rounded-sm min-h-screen ">
           <EditorForm />
         </div>
@@ -244,7 +243,7 @@ export default function EditPost({ token }) {
 }
 
 export async function getServerSideProps(ctx) {
-  const cookies = await parseCookies(ctx);
+  const cookies = parseCookies(ctx);
 
   const { postId } = ctx.query;
 
