@@ -10,30 +10,6 @@ function generateSiteMap(posts) {
       <changefreq>daily</changefreq>
       <priority>0.8</priority>
      </url>
-     <url>
-      <loc>${process.env.BASE_URL}/pages/about</loc>
-      <lastmod>${new Date().toISOString()}</lastmod>
-      <changefreq>daily</changefreq>
-      <priority>0.8</priority>
-     </url>
-     <url>
-      <loc>${process.env.BASE_URL}/pages/contact</loc>
-      <lastmod>${new Date().toISOString()}</lastmod>
-      <changefreq>daily</changefreq>
-      <priority>0.8</priority>
-     </url>
-     <url>
-      <loc>${process.env.BASE_URL}/pages/privacy-policy</loc>
-      <lastmod>${new Date().toISOString()}</lastmod>
-      <changefreq>daily</changefreq>
-      <priority>0.8</priority>
-     </url>
-     <url>
-      <loc>${process.env.BASE_URL}/pages/terms-and-conditions</loc>
-      <lastmod>${new Date().toISOString()}</lastmod>
-      <changefreq>daily</changefreq>
-      <priority>0.8</priority>
-     </url>
      ${posts
        .map((a) => {
          return `
@@ -68,7 +44,59 @@ export async function getServerSideProps({ res }) {
     },
   });
   // We generate the XML sitemap with the posts data
-  const sitemap = generateSiteMap(posts);
+
+  const pages = await prismaOrm.pages.findMany({
+    select: {
+      title: true,
+      slug: true,
+      createdAt: true,
+    },
+  });
+
+  const newPages = pages.map((a) => {
+    return {
+      ...a,
+      slug: `pages/${a.slug}`,
+    };
+  });
+
+  const navbar = await prismaOrm.NavbarCategory.findMany({
+    select: {
+      name: true,
+      menu: {
+        select: {
+          name: true,
+          url: true,
+          icon: true,
+          navbarItemChild: {
+            select: {
+              name: true,
+              url: true,
+            },
+          },
+        },
+      },
+    },
+  });
+
+  const navbarUrl = [];
+
+  navbar?.map((a) => {
+    a.menu.map((b) => {
+      navbarUrl.push({
+        ...b,
+        slug: `${b.url.replace('/', '')}`,
+      });
+      b.navbarItemChild.map((c) => {
+        navbarUrl.push({
+          ...c,
+          slug: `${c.url.replace('/', '')}`,
+        });
+      });
+    });
+  });
+
+  const sitemap = generateSiteMap([...navbarUrl, ...posts, ...newPages]);
 
   res.setHeader('Content-Type', 'text/xml');
   // we send the XML to the browser

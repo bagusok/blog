@@ -22,7 +22,7 @@ export default async function handler(req, res) {
       skip: startIndex,
       take: limit,
       orderBy: {
-        createdAt: 'desc',
+        publishedAt: 'desc',
       },
       select: {
         title: true,
@@ -55,10 +55,11 @@ export default async function handler(req, res) {
     });
 
     const newData = getPost.map((a, i) => {
-      const strippedHtml = a?.body?.replace(/<[^>]+>/g, '').slice(0, 200) + '...';
+      const strippedHtml = a?.body?.replace(/<[^>]+>/g, '').slice(0, 300) + '...';
 
       return {
         ...a,
+        title: a.title.length > 50 ? a.title.slice(0, 50) + '...' : a.title,
         body: strippedHtml,
         categories: a.categories.name,
         tag: a.tag.map((b, i) => {

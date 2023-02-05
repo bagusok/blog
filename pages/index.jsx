@@ -54,6 +54,7 @@ export default function Home({ sidebar, page }) {
           name="description"
           content="Blog untuk sharing seputar teknologi yang berkembang di masyarakat bumi, maupun planet lain."
         />
+        <link rel="canonical" href="https://bagusok.com" />
 
         <meta property="og:type" content="website" />
         <meta property="og:url" content="https://bagusok.com/" />
@@ -74,11 +75,11 @@ export default function Home({ sidebar, page }) {
         <meta property="twitter:image" content="https://i.postimg.cc/Pr7KbPz9/Frame-1.png" />
       </Head>
 
-      <div className="flex flex-col relative">
+      <div className="flex flex-col relative box-border">
         <BlogNavbar />
         <main className="w-full min-h-screen flex flex-col md:flex-row lg:flex-row lg:gap-2">
           <BlogSidebar sidebar={sidebar} />
-          <article className="lg:w-7/12 md:w-8/12 mt-5 px-4 lg:px-2 relative">
+          <article className="mt-5 px-4 lg:px-2 relative w-full">
             {(page == 1 || (!page && !isLoading)) && (
               <section className="featured flex flex-col lg:flex-row gap-4 lg:px-0">
                 <div className="lg:w-1/2 rounded-md overflow-hidden h-full w-auto">
@@ -228,7 +229,7 @@ export function PostListSkeleton({ count = 1 }) {
   }
 
   return (
-    <div className="flex flex-col lg:flex-row lg:flex-wrap gap-3 lg:gap-0 mt-3 lg:mt-10">
+    <div className="flex flex-col min-w-full max-w-full lg:flex-row lg:flex-wrap gap-3 lg:gap-0 mt-3 lg:mt-10">
       {arr?.map((a, i) => {
         return (
           <div key={i} className="lg:w-1/3 flex flex-col justify-between rounded-md overflow-hidden lg:p-2 max-h-72">
@@ -307,7 +308,7 @@ export const ListPostSection = ({ data }) => {
   return (
     <div className="lg:w-1/3 md:w-1/2 flex flex-col justify-between rounded-md overflow-hidden md:p-2 lg:p-2 ">
       <div>
-        <div className="image rounded-md overflow-hidden md:h-32 w-auto bg-slate-100/50 relative">
+        <div className="image rounded-md overflow-hidden md:h-auto md:max-h-48 w-auto bg-slate-100/50 relative">
           <ImageFallback
             src={data.thumbnail}
             loading="lazy"
@@ -320,7 +321,7 @@ export const ListPostSection = ({ data }) => {
           />
         </div>
         <div className="text-body mt-1">
-          <p className="font-semibold text-base text-melrose-400">{data.categories}</p>
+          <p className="font-light text-base text-slate-500 ">{data.categories}</p>
           <Link
             href={`/${data.slug}`}
             className="font-semibold text-black text-xl lg:text-lg hover:border-b-2 hover:border-slate-500 hover:opacity-70"

@@ -21,6 +21,7 @@ export default async function handler(req, res) {
     const updatePost = await prismaOrm.Post.update({
       data: {
         isPublished: isPublished,
+        publishedAt: new Date(),
       },
       where: {
         id: Number(postId),

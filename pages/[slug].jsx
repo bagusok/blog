@@ -57,12 +57,12 @@ export default function PostDetail(props) {
         <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png" />
         <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32.png" />
         <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16.png" />
-        {/* <link rel="preload" href="/images/no-image.png" as="image" /> */}
 
         <title>{post.title}</title>
         <meta name="robots" content="all" />
         <meta name="author" content={post.author.fullName} />
         <meta name="keywords" content={post.tag.map((tag) => tag.tagName).toString()} />
+        <link rel="canonical" href={post.url} />
 
         <meta name="title" content={post.title} />
         <meta name="description" content={post.metaDescription} />
@@ -128,7 +128,7 @@ export default function PostDetail(props) {
               />
             </div>
 
-            <div className="prose lg:prose-lg prose-p:text-base  prose-pre:bg-[#011627] w-full">
+            <div className="prose lg:prose-lg prose-p:text-base prose-pre:bg-[#011627] w-full">
               {/* Table Of Contents */}
 
               <details className="cursor-pointer bg-slate-100 p-2 rounded-lg mt-10 w-full">
@@ -233,9 +233,10 @@ export default function PostDetail(props) {
 }
 
 export async function getStaticProps({ params }) {
-  const post = await prismaOrm.Post.findUnique({
+  const post = await prismaOrm.Post.findFirst({
     where: {
       slug: params.slug,
+      isPublished: true,
     },
     select: {
       id: true,
@@ -379,7 +380,7 @@ export async function getStaticProps({ params }) {
             }
           }
         });
-        console.log(tree);
+
         return;
       };
     })
@@ -394,7 +395,7 @@ export async function getStaticProps({ params }) {
         body: content,
         table_of_contents: toc,
         url: `${process.env.BASE_URL}/${post.slug}`,
-        publishedAt: post.publishedAt.toISOString(),
+        publishedAt: post.publishedAt?.toISOString() || null,
       },
       sidebar: newSidebar,
     },

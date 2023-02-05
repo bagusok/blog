@@ -4,7 +4,7 @@ import FeaturedPost from './FeaturedPost';
 export default function Aside() {
   return (
     <>
-      <aside className="lg:w-3/12 md:w-4/12 flex flex-col mt-5 px-5 lg:px-0 lg:pr-5 box-border">
+      <aside className="lg:max-w-[18rem] lg:min-w-[18rem] lg:w-[18rem] md:w-4/12 flex flex-col mt-5 px-5 lg:px-0 lg:pr-5 box-border">
         <div className="bg-[#414141] w-full rounded-md px-5 pt-5 pb-10">
           <h2 className="text-4xl md:text-2xl font-bold text-white">Newsletter</h2>
           <p className="text-md md:text-sm font-regular text-white mt-2">

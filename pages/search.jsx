@@ -14,7 +14,7 @@ import { redirect } from 'next/dist/server/api-utils';
 
 const AsideDynamic = dynamic(() => import('../components/blog/Aside'), { ssr: false });
 
-export default function Search({ search, menuItem }) {
+export default function Search({ search, sidebar }) {
   //   const { data: listPost, error, isLoading } = useSwr(`/api/v1/post?page=${page}`, fetcher);
   const { data: listTags, error: errorTags, isLoading: isLoadingTags } = useSwr(`/api/v1/post/get-tags`, fetcher);
 
@@ -78,7 +78,7 @@ export default function Search({ search, menuItem }) {
       <div className="flex flex-col relative">
         <BlogNavbar />
         <main className="w-full min-h-screen flex flex-col md:flex-row lg:flex-row lg:gap-2">
-          <BlogSidebar menuItem={menuItem} />
+          <BlogSidebar sidebar={sidebar} />
           <article className="lg:w-7/12 md:w-8/12 mt-5 px-4 lg:px-2 relative">
             <section id="latest-post-list">
               <div className="latest-post flex flex-col md:flex-row flex-wrap lg:flex-row lg:flex-wrap gap-8 md:gap-0 lg:gap-0 mt-8 lg:mt-10">
@@ -137,24 +137,54 @@ export async function getServerSideProps(ctx) {
       notFound: true,
     };
 
-  const getMenu = await prismaOrm.navbar.findMany({
+  const sideBar = await prismaOrm.NavbarCategory.findMany({
     select: {
-      id: true,
       name: true,
-      icon: true,
-      url: true,
+      menu: {
+        select: {
+          name: true,
+          url: true,
+          icon: true,
+          navbarItemChild: {
+            select: {
+              name: true,
+              url: true,
+            },
+          },
+        },
+      },
     },
     orderBy: {
       id: 'asc',
     },
   });
 
-  if (!getMenu) return { notFound: true };
+  const newSidebar = sideBar.map((a, i) => {
+    const newMenu = a.menu.map((b, j) => {
+      const newNavbarItemChild = b.navbarItemChild.map((c, k) => {
+        return {
+          name: c.name,
+          url: c.url,
+        };
+      });
+      return {
+        name: b.name,
+        url: b.url,
+        icon: b.icon,
+        isOpen: false,
+        child: newNavbarItemChild,
+      };
+    });
+    return {
+      name: a.name,
+      child: newMenu,
+    };
+  });
 
   return {
     props: {
       search,
-      menuItem: getMenu || null,
+      sidebar: newSidebar || null,
     },
   };
 }

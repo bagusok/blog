@@ -53,46 +53,54 @@ export default function BlogSidebar({ sidebar }) {
   return (
     <nav
       className={`${
-        isOpen ? '-translate-x-0' : '-translate-x-[50rem]'
-      } lg:-translate-x-0 ease-in-out duration-300 w-64 min-h-screen flex flex-col self-start px-2 bg-white shadow-md lg:shadow-none border-r border-melrose-100 fixed lg:sticky z-50 top-14 lg:top-0 left-0`}
+        isOpen ? 'w-[18rem]' : 'w-0 -translate-x-20 lg:-translate-x-0 md:w-[5rem]'
+      } duration-500 ease-in-out min-h-screen flex flex-col self-start px-2 bg-white shadow-md lg:shadow-none border-r border-melrose-100 fixed lg:sticky z-50 top-14 lg:top-0 left-0`}
     >
       <ul className="flex flex-col gap-8 mt-5 box-border">
         {newSidebar?.map((a, b) => {
           return (
             <li className="" key={b}>
-              <span className="pl-4 md:pl-7 text-sm text-slate-400">{a.name}</span>
+              <span className={`pl-4 md:pl-7 text-sm text-slate-400 scale-0 duration-200 ease-in-out`}>
+                {isOpen && a.name}
+              </span>
               <ul className="font-light text-gray-600 text-lg md:text-base box-border ">
                 {a?.child?.map((c, d) => {
                   return (
                     <li
                       key={d}
                       onClick={() => (c.child.length > 0 ? handleOpenSidebar(b, d) : router.push(c.url))}
-                      className="cursor-pointer hover:text-melrose-400"
+                      className="cursor-pointer relative"
                     >
                       <div className="pl-4 pr-3 md:pl-7 inline-flex justify-between items-center w-full rounded h-10 hover:bg-slate-100">
-                        <div className="inline-flex gap-3">
+                        <div className={`inline-flex w-[12rem] gap-3 ${!isOpen && 'hidden md:block'}`}>
                           <Icon name={c.icon} className="w-5 h-5" />
-                          <span>{c.name}</span>
+                          <span className="hover:text-melrose-400 duration-100 ease-in-out">{isOpen && c.name}</span>
                         </div>
-                        {c.child.length > 0 && (
+                        {c.child.length > 0 && isOpen && (
                           <span>
                             <HeroIcon.ChevronDownIcon
                               className={`w-5 h-5 ${
                                 c.isOpen ? 'rotate-180' : 'rotate-0'
-                              } transition-all delay-50 cursor-pointer`}
+                              } transition-all duration-100 cursor-pointer`}
                             />
                           </span>
                         )}
                       </div>
-                      <ul className="pl-10 md:pl-[3.30rem] bg-slate-100 rounded-md">
+                      <ul
+                        className={` ${
+                          !isOpen
+                            ? 'md:absolute left-20 top-0 md:min-w-[13rem] md:max-w-[15rem] md:w-fit md:bg-white md:shadow-lg md:pl-2'
+                            : 'md:pl-[3.30rem]'
+                        } pl-10  bg-slate-100 rounded-md`}
+                      >
                         {c.isOpen == true &&
                           c.child.map((e, f) => {
                             return (
                               <li
-                                className="h-8 flex flex-col justify-center w-full hover:bg-slate-100 px-2 rounded hover:text-melrose-400"
+                                className="h-8 flex flex-col justify-center w-full hover:bg-slate-100 px-2 rounded "
                                 key={f}
                               >
-                                <span>{e.name}</span>
+                                <span className="hover:text-melrose-400">{e.name}</span>
                               </li>
                             );
                           })}
@@ -106,13 +114,13 @@ export default function BlogSidebar({ sidebar }) {
         })}
       </ul>
 
-      <div className="w-full px-2 mt-auto mb-16">
+      <div className={`${!isOpen && 'md:hidden'} w-full px-2 mt-auto mb-16`}>
         <div className="w-full border-2 border-dashed rounded-md flex justify-center items-center h-32">
           <h2>Ads</h2>
         </div>
       </div>
 
-      <div className="absolute bottom-5 left-0 inline-flex gap-4 pl-5">
+      <div className={`${!isOpen && 'md:hidden'} absolute bottom-5 left-0 inline-flex gap-4 pl-5`}>
         <Link href="/">
           <FaFacebook className="w-[1.4rem] h-[1.4rem]" />
         </Link>

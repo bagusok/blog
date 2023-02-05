@@ -14,7 +14,7 @@ export default async function handler(req, res) {
   try {
     const getPost = await prisma.post.findMany({
       skip: 0,
-      take: 9,
+      take: 20,
       orderBy: {
         createdAt: 'desc',
       },

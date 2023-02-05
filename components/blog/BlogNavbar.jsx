@@ -22,7 +22,7 @@ export default function BlogNavbar() {
   return (
     <header className="w-full h-14 bg-white shadow-sm flex justify-between items-center gap-2 sticky top-0 z-50 lg:relative lg:pl-4">
       <div className="blog-title inline-flex items-center gap-2 lg:w-64 pl-5 lg:pl-4">
-        <BsJustifyLeft className="lg:hidden w-6 h-6" onClick={() => setOpenSidebar((prev) => !prev)} />
+        <BsJustifyLeft className="w-6 h-6" onClick={() => setOpenSidebar((prev) => !prev)} />
         <Link href="/" className="text-xl lg:text-2xl font-bold">
           SanBlog
         </Link>
