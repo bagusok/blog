@@ -233,56 +233,59 @@ export default function PostDetail(props) {
 }
 
 export async function getStaticProps({ params }) {
-  const [post, sidebar] = await prismaOrm.$transaction([
-    prismaOrm.Post.findFirst({
-      where: {
-        slug: params.slug,
-        isPublished: true,
-      },
-      select: {
-        id: true,
-        title: true,
-        slug: true,
-        body: true,
-        thumbnail: true,
-        metaTitle: true,
-        metaDescription: true,
-        author: {
-          select: {
-            fullName: true,
-          },
+  const post = await prismaOrm.Post.findFirst({
+    where: {
+      slug: params.slug,
+      isPublished: true,
+    },
+    select: {
+      id: true,
+      title: true,
+      slug: true,
+      body: true,
+      thumbnail: true,
+      metaTitle: true,
+      metaDescription: true,
+      author: {
+        select: {
+          fullName: true,
         },
-        tag: {
-          select: {
-            tagName: true,
-          },
-        },
-        publishedAt: true,
       },
-    }),
-    prismaOrm.NavbarCategory.findMany({
-      select: {
-        name: true,
-        menu: {
-          select: {
-            name: true,
-            url: true,
-            icon: true,
-            navbarItemChild: {
-              select: {
-                name: true,
-                url: true,
-              },
+      tag: {
+        select: {
+          tagName: true,
+        },
+      },
+      publishedAt: true,
+    },
+  });
+
+  if (!post?.slug)
+    return {
+      notFound: true,
+    };
+
+  const sidebar = await prismaOrm.NavbarCategory.findMany({
+    select: {
+      name: true,
+      menu: {
+        select: {
+          name: true,
+          url: true,
+          icon: true,
+          navbarItemChild: {
+            select: {
+              name: true,
+              url: true,
             },
           },
         },
       },
-      orderBy: {
-        id: 'asc',
-      },
-    }),
-  ]);
-
+    },
+    orderBy: {
+      id: 'asc',
+    },
+  });
   const newSidebar = sidebar.map((a, i) => {
     const newMenu = a.menu.map((b, j) => {
       const newNavbarItemChild = b.navbarItemChild.map((c, k) => {
@@ -299,12 +302,6 @@ export async function getStaticProps({ params }) {
         child: newNavbarItemChild,
       };
     });
-
-    if (!post?.slug)
-      return {
-        notFound: true,
-      };
-
     return {
       name: a.name,
       child: newMenu,
