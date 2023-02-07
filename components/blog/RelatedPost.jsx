@@ -5,12 +5,11 @@ import { useRouter } from 'next/router';
 import Link from 'next/link';
 
 export default function RelatedPost({ tags, postId }) {
-  const newTags = tags
-    .map((tag) => tag.tagName)
-    .toString()
-    .replaceAll(' ', ',');
+  // const tags = ['java', 'react', 'javascript'];
+  const newTags = tags.map((tag) => tag.tagName).join(',');
+  const query = newTags.replace(/ /g, ',').toString();
 
-  const { data, error, isLoading } = useSWR('/api/v1/post/related-post?tags=' + newTags + '&id=' + postId, fetcher);
+  const { data, error, isLoading } = useSWR('/api/v1/post/related-post?tags=' + query + '&id=' + postId, fetcher);
 
   const router = useRouter();
 

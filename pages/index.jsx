@@ -1,5 +1,4 @@
 import Image from 'next/image';
-import BlogSidebar from '../components/blog/BlogSidebar';
 import BlogNavbar from '../components/blog/BlogNavbar';
 import Link from 'next/link';
 import BlogFooter from '../components/blog/BlogFooter';
@@ -12,6 +11,7 @@ import dynamic from 'next/dynamic';
 import { useRouter } from 'next/router';
 
 const AsideDynamic = dynamic(() => import('../components/blog/Aside'), { ssr: false });
+const BlogSidebar = dynamic(() => import('../components/blog/BlogSidebar', { ssr: false }));
 
 export default function Home({ sidebar, page }) {
   const { data: listPost, error, isLoading } = useSwr(`/api/v1/post?page=${page}`, fetcher);
@@ -251,6 +251,7 @@ export function PostListSkeleton({ count = 1 }) {
 export async function getServerSideProps(ctx) {
   // const getItem = await fetch(`${process.env.BASE_URL}/api/v1/list-menu`).then((res) => res.json());
   const page = ctx.query?.page || 1;
+
   const sidebar = await prismaOrm.NavbarCategory.findMany({
     select: {
       name: true,

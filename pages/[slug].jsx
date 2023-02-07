@@ -1,7 +1,6 @@
 import Image from 'next/image';
 import { useEffect } from 'react';
 import BlogNavbar from '../components/blog/BlogNavbar';
-import BlogSidebar from '../components/blog/BlogSidebar';
 import { CiShare1 } from 'react-icons/ci';
 import BlogFooter from '../components/blog/BlogFooter';
 import { useRouter } from 'next/router';
@@ -31,6 +30,7 @@ hljs.registerLanguage('js', js);
 hljs.registerLanguage('ts', ts);
 
 const AsideDynamic = dynamic(() => import('../components/blog/Aside'), { ssr: false });
+const BlogSidebar = dynamic(() => import('../components/blog/BlogSidebar'), { ssr: false });
 
 export default function PostDetail(props) {
   const { post } = props;
@@ -61,7 +61,7 @@ export default function PostDetail(props) {
         <title>{post.title}</title>
         <meta name="robots" content="all" />
         <meta name="author" content={post.author.fullName} />
-        <meta name="keywords" content={post.tag.map((tag) => tag.tagName).toString()} />
+        <meta name="keywords" content={post.tag.map((tag) => tag.tagName)} />
         <link rel="canonical" href={post.url} />
 
         <meta name="title" content={post.title} />
@@ -233,59 +233,56 @@ export default function PostDetail(props) {
 }
 
 export async function getStaticProps({ params }) {
-  const post = await prismaOrm.Post.findFirst({
-    where: {
-      slug: params.slug,
-      isPublished: true,
-    },
-    select: {
-      id: true,
-      title: true,
-      slug: true,
-      body: true,
-      thumbnail: true,
-      metaTitle: true,
-      metaDescription: true,
-      author: {
-        select: {
-          fullName: true,
-        },
+  const [post, sidebar] = await prismaOrm.$transaction([
+    prismaOrm.Post.findFirst({
+      where: {
+        slug: params.slug,
+        isPublished: true,
       },
-      tag: {
-        select: {
-          tagName: true,
+      select: {
+        id: true,
+        title: true,
+        slug: true,
+        body: true,
+        thumbnail: true,
+        metaTitle: true,
+        metaDescription: true,
+        author: {
+          select: {
+            fullName: true,
+          },
         },
+        tag: {
+          select: {
+            tagName: true,
+          },
+        },
+        publishedAt: true,
       },
-      publishedAt: true,
-    },
-  });
-
-  if (!post?.slug)
-    return {
-      notFound: true,
-    };
-
-  const sidebar = await prismaOrm.NavbarCategory.findMany({
-    select: {
-      name: true,
-      menu: {
-        select: {
-          name: true,
-          url: true,
-          icon: true,
-          navbarItemChild: {
-            select: {
-              name: true,
-              url: true,
+    }),
+    prismaOrm.NavbarCategory.findMany({
+      select: {
+        name: true,
+        menu: {
+          select: {
+            name: true,
+            url: true,
+            icon: true,
+            navbarItemChild: {
+              select: {
+                name: true,
+                url: true,
+              },
             },
           },
         },
       },
-    },
-    orderBy: {
-      id: 'asc',
-    },
-  });
+      orderBy: {
+        id: 'asc',
+      },
+    }),
+  ]);
+
   const newSidebar = sidebar.map((a, i) => {
     const newMenu = a.menu.map((b, j) => {
       const newNavbarItemChild = b.navbarItemChild.map((c, k) => {
@@ -302,6 +299,12 @@ export async function getStaticProps({ params }) {
         child: newNavbarItemChild,
       };
     });
+
+    if (!post?.slug)
+      return {
+        notFound: true,
+      };
+
     return {
       name: a.name,
       child: newMenu,
