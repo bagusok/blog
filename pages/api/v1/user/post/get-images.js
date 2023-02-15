@@ -10,8 +10,8 @@ cloudinary.config({
 
 export const s3Client = new S3({
   forcePathStyle: false, // Configures to use subdomain/virtual calling format.
-  endpoint: process.env.S3_UPLOAD_ENDPOINT,
-  region: 'nyc3',
+  endpoint: 'https://' + process.env.S3_UPLOAD_ENDPOINT,
+  region: process.env.S3_UPLOAD_REGION,
   credentials: {
     accessKeyId: process.env.S3_UPLOAD_KEY,
     secretAccessKey: process.env.S3_UPLOAD_SECRET,
@@ -41,19 +41,45 @@ export default async function handler(req, res) {
       });
       return res.status(200).json({ status: true, data: newData });
     }
+
     const data = await s3Client.send(new ListObjectsCommand(bucketParams));
 
-    const newData = data?.Contents?.map((a, i) => {
-      return {
-        type: 's3',
-        path: a.Key,
-        url: `https://bagusok.sgp1.digitaloceanspaces.com/${a.Key}`,
-        created_at: a.LastModified,
-      };
-    });
+    // console.log('ini data', data);
+
+    const newData = async () => {
+      return Promise.all(
+        data?.Contents?.map(async (a, i) => {
+          let url = '';
+
+          if (process.env.S3_UPLOAD_ENDPOINT.includes('filebase')) {
+            const getObject = await s3Client.getObject({
+              Bucket: process.env.S3_UPLOAD_BUCKET,
+              Key: a.Key,
+            });
+
+            url = `https://ipfs.filebase.io/ipfs/${getObject.Metadata.cid}`;
+          } else if (process.env.S3_UPLOAD_ENDPOINT.includes('storj')) {
+            const getObject = await s3Client.getObject({
+              Bucket: process.env.S3_UPLOAD_BUCKET,
+              Key: a.Key,
+            });
+            console.log('masuk sini', getObject);
+            url = `https://${process.env.S3_UPLOAD_ENDPOINT}/${process.env.S3_UPLOAD_BUCKET}/${a.Key}`;
+          } else {
+            url = `https://${process.env.S3_UPLOAD_ENDPOINT}/${process.env.S3_UPLOAD_BUCKET}/${a.Key}`;
+          }
+          return {
+            type: 's3',
+            path: a.Key,
+            url,
+            created_at: a.LastModified,
+          };
+        })
+      );
+    };
 
     const sortData = _.orderBy(newData, ['created_at'], ['desc']);
-    return res.status(200).json({ status: true, data: sortData });
+    return res.status(200).json({ status: true, data: await newData() });
   } catch (e) {
     console.log(e.message);
     return res.status(500).json({ status: false });

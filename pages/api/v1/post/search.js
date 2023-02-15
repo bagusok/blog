@@ -12,11 +12,13 @@ export default async function handler(req, res) {
       title: {
         search: newQ,
       },
+      isPublished: true,
     },
     select: {
       id: true,
       title: true,
       slug: true,
+      publishedAt: true,
     },
   });
 

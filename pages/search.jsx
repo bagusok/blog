@@ -1,7 +1,7 @@
 import dynamic from 'next/dynamic';
 import Head from 'next/head';
 import Link from 'next/link';
-import { ListPostSection, PostListSkeleton } from '.';
+import { ListPostSection } from '.';
 import BlogFooter from '../components/blog/BlogFooter';
 import BlogNavbar from '../components/blog/BlogNavbar';
 import BlogSidebar from '../components/blog/BlogSidebar';
@@ -77,7 +77,7 @@ export default function Search({ search, sidebar }) {
 
       <div className="flex flex-col relative">
         <BlogNavbar />
-        <main className="w-full min-h-screen flex flex-col md:flex-row lg:flex-row lg:gap-2">
+        <main className="w-auto min-h-screen flex flex-col md:flex-row lg:flex-row lg:justify-between lg:gap-2">
           <BlogSidebar sidebar={sidebar} />
           <article className="lg:w-7/12 md:w-8/12 mt-5 px-4 lg:px-2 relative">
             <section id="latest-post-list">
@@ -123,12 +123,14 @@ export async function getServerSideProps(ctx) {
       title: {
         search: newQ,
       },
+      isPublished: true,
     },
     select: {
       id: true,
       title: true,
       slug: true,
       thumbnail: true,
+      publishedAt: true,
     },
   });
 
@@ -181,9 +183,16 @@ export async function getServerSideProps(ctx) {
     };
   });
 
+  console.log(new Date(search[0].publishedAt));
+
   return {
     props: {
-      search,
+      search: search.map((a, i) => {
+        return {
+          ...a,
+          publishedAt: new Date(a.publishedAt).toString(),
+        };
+      }),
       sidebar: newSidebar || null,
     },
   };

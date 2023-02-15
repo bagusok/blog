@@ -13,7 +13,7 @@ cloudinary.config({
 
 export const s3Client = new S3({
   forcePathStyle: false, // Configures to use subdomain/virtual calling format.
-  endpoint: process.env.S3_UPLOAD_ENDPOINT,
+  endpoint: 'https://' + process.env.S3_UPLOAD_ENDPOINT,
   region: process.env.S3_UPLOAD_REGION,
   credentials: {
     accessKeyId: process.env.S3_UPLOAD_KEY,
@@ -76,7 +76,7 @@ export default async function handler(req, res) {
       }
     });
   } catch (err) {
-    console.log(err.message);
+    console.log('err', err.message);
     return res.status(201).json({ status: true, msg: 'ssjjs', err: err.message });
   }
 }

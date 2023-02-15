@@ -100,7 +100,9 @@ export default function BlogSidebar({ sidebar }) {
                                 className="h-8 flex flex-col justify-center w-full hover:bg-slate-100 px-2 rounded "
                                 key={f}
                               >
-                                <span className="hover:text-melrose-400">{e.name}</span>
+                                <Link href={e.url} className="hover:text-melrose-400">
+                                  {e.name}
+                                </Link>
                               </li>
                             );
                           })}
