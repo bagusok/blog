@@ -95,8 +95,6 @@ export async function getServerSideProps({ res }) {
       });
     });
   });
-  npm;
-
   const sitemap = generateSiteMap([...navbarUrl, ...posts, ...newPages]);
 
   res.setHeader('Content-Type', 'text/xml');
